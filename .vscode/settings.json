@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "filesystem": "cpp",
+        "functional": "cpp",
+        "valarray": "cpp",
+        "xiosbase": "cpp",
+        "xstring": "cpp"
+    }
+}
