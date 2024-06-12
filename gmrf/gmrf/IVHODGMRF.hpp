@@ -24,17 +24,27 @@ namespace HGMRF {
 
 	public:
 		// ============================================================
-		ivhgmrf_od() {
-			this->lambda = 1e-11;
-			this->alpha = 1e-8;
-			this->gammma2 = 1e-8;
-			this->sigma2 = 5e-01;
-			this->maxepoch = 1000;
-			this->eps = 1e-7;
-			this->lambda_rate = 1e-12;
-			this->alpha_rate = 5e-9;
-			this->gammma2_rate = 5e-9;
-		}
+		ivhgmrf_od(
+			const Type& _lambda = 1e-11,
+			const Type& _alpha = 1e-8,
+			const Type& _gammma2 = 1e-8,
+			const Type& _sigma2 = 5e-01,
+			const Type& _maxepoch = 1000,
+			const Type& _eps = 1e-7,
+			const Type& _lambda_rate = 1e-12,
+			const Type& _alpha_rate = 5e-9,
+			const Type& _gammma2_rate = 5e-9
+		):
+			lambda(_lambda),
+			alpha(_alpha),
+			gamma2(_gammma2),
+			sigma2(_sigma2),
+			maxepoch(_maxepoch),
+			eps(_eps),
+			lambda_rate(_lambda_rate),
+			alpha_rate(_alpha_rate),
+			gamma2_rate(_gammma2_rate)
+		{}
 
 		~ivhgmrf_od() {}
 
@@ -70,7 +80,7 @@ namespace HGMRF {
 				std::cout << "error : " << error << std::endl;
 				std::cout << "alpha : " << this->alpha << std::endl;
 				std::cout << "lambda : " << this->lambda << std::endl;
-				std::cout << "gammma2 : " << this->gammma2 << std::endl;
+				std::cout << "gamma2 : " << this->gamma2 << std::endl;
 				std::cout << "sigma2 : " << this->sigma2 << std::endl;
 				std::cout << "==============" << std::endl;
 #endif
@@ -90,12 +100,20 @@ namespace HGMRF {
 		// accessor
 		Type get_lambda() { return this->lambda; }
 		Type get_alpha() { return this->alpha; }
-		Type get_gammma2() { return this->gammma2; }
+		Type get_gamma2() { return this->gamma2; }
 		Type get_sigma2() { return this->sigma2; }
 		u32 get_epoch() { return this->epoch; }
 		vec get_avg_signal() { return this->avg_signal; }
 		vec get_v() { return this->v_final; }
 		vec get_w() { return this->w_final; }
+		void set_lambda(const Type& _lambda) { this->lambda = _lambda; }
+		void set_alpha(const Type& _alpha) { this->alpha = _alpha; }
+		void set_gamma2(const Type& _gammma2) { this->gamma2 = _gammma2; }
+		void set_sigma2(const Type& _sigma2) { this->sigma2 = _sigma2; }
+		void set_epoch(const Type& _epoch) { this->epoch = _epoch; }
+		void set_lambda_rate(const Type& _lambda_rate) { this->lambda_rate = _lambda_rate; }
+		void set_alpha_rate(const Type& _alpha_rate) { this->alpha_rate = _alpha_rate; }
+		void set_gamma2_rate(const Type& _gamma2_rate) { this->gamma2_rate = _gamma2_rate; }
 
 
 		// ============================================================
@@ -103,7 +121,7 @@ namespace HGMRF {
 		// HGMRF parameters
 		Type lambda;
 		Type alpha;
-		Type gammma2;
+		Type gamma2;
 		Type sigma2;
 
 		// Algorithm parameters
@@ -114,7 +132,7 @@ namespace HGMRF {
 		// parameters for estimating the optimal Gaussian distribution
 		Type lambda_rate;
 		Type alpha_rate;
-		Type gammma2_rate;
+		Type gamma2_rate;
 		Type sigma2_rate;
 
 		// Image parameters
@@ -138,7 +156,7 @@ namespace HGMRF {
 			const auto _lambda = this->lambda;
 			const auto _alpha = this->alpha;
 			const auto _sigma2 = this->sigma2;
-			const auto _gammma2 = this->gammma2;
+			const auto _gammma2 = this->gamma2;
 
 			const Type inv_sigma2 = _enumerate / _sigma2;
 
@@ -202,7 +220,7 @@ namespace HGMRF {
 			const auto _lambda = this->lambda;
 			const auto _alpha = this->alpha;
 			const auto _sigma2 = this->sigma2;
-			const auto _gammma2 = this->gammma2;
+			const auto _gammma2 = this->gamma2;
 			const auto _eigen = this->eigen;
 
 			const Type inv_sigma2 = _enumerate / _sigma2;
@@ -234,7 +252,7 @@ namespace HGMRF {
 			// Update parameters
 			this->lambda += this->lambda_rate * lambda_grad;
 			this->alpha += this->alpha_rate * alpha_grad;
-			this->gammma2 += this->gammma2_rate * gammma2_grad;
+			this->gamma2 += this->gamma2_rate * gammma2_grad;
 			this->sigma2 = sigma2_strict;
 		}
 

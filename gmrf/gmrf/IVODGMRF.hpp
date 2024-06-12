@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include.hpp"
+#include "ndarray_vec.hpp"
 
 #define GSITER 2
 // #define DEBUG_MODE
@@ -9,22 +10,29 @@
 namespace GMRF
 {
 	template<typename Type>
-	class ivgmrf_od
+	class ivgmrf_od : public ndarray_vec
 	{
 		typedef std::vector<Type> vec;
 		typedef std::vector<std::vector<Type>> matrix;
 
 	public:
 		// =================================================================
-		ivgmrf_od() {
-			setLambda(1e-11);
-			setAlpha(1e-8);
-			setSigma2(5e-01);
-			setMaxEpoch(1000);
-			setEps(1e-9);
-			setLambdaRate(1e-13);
-			setAlphaRate(1e-6);
-		}
+		ivgmrf_od(	const Type& _lambda = 1e-11,
+					const Type& _alpha = 1e-8,
+					const Type& _sigma2 = 5e-01,
+					const int& _maxepoch = 1000,
+					const Type& _eps = 1e-9,
+					const Type& _lambdarate = 1e-13,
+					const Type& _alpharate = 1e-6	
+		) 
+			:	lambda(_lambda),
+				alpha(_alpha),
+				sigma2(_sigma2),
+				maxepoch(_maxepoch),
+				eps(_eps),
+				lambdaRate(_lambdarate),
+				alphaRate(_alpharate)
+		{}
 
 		~ivgmrf_od() {}
 
@@ -97,8 +105,10 @@ namespace GMRF
 			this->alpha += alphaRate * alphaGrad;
 		}
 
-		vec processBlock(const matrix& noise)
+		py::array_t<Type> processBlock(const py::array_t<Type> nd_noise)
 		{
+			matrix noise = ndarray_to_vector(nd_noise);
+
 			setData(noise);
 			this->avgData = averaged(noise);
 			vec mean = avgData;
@@ -120,72 +130,27 @@ namespace GMRF
 			std::cout << "error/ ep=" << epoch << " :" << error << std::endl;
 #endif	// DEBUG_MODE
 
-			return decenterize(mean);
+			py::array_t<Type> result = vector_to_ndarray(decenterize(mean));
+			return result;
 		}
 
 		// =================================================================
 		// accessor
-		Type getLambda() const
-		{
-			return lambda;
-		}
-		void setLambda(const Type _lambda)
-		{
-			this->lambda = static_cast<Type>(_lambda);
-		}
-
-		Type getAlpha() const
-		{
-			return alpha;
-		}
-		void setAlpha(Type _alpha)
-		{
-			this->alpha = static_cast<Type>(_alpha);
-		}
-
-		Type getSigma2() const
-		{
-			return sigma2;
-		}
-		void setSigma2(const Type _sigma2)
-		{
-			this->sigma2 = static_cast<Type>(_sigma2);
-		}
-
-		void setMaxEpoch(int _maxepoch)
-		{
-			this->maxepoch = _maxepoch;
-		}
-
-		void setEps(const Type _eps)
-		{
-			this->eps = _eps;
-		}
-
-		Type getError() const
-		{
-			return static_cast<Type>(this->error);
-		}
-
-		void setLambdaRate(const Type _lambdaRate)
-		{
-			this->lambdaRate = static_cast<Type>(_lambdaRate);
-		}
-
-		void setAlphaRate(const Type _alphaRate)
-		{
-			this->alphaRate = static_cast<Type>(_alphaRate);
-		}
-
-		int getEpoch()
-		{
-			return epoch;
-		}
-
-		vec getAvgData()
-		{
-			return avgData;
-		}
+		Type getLambda() const { return lambda; }
+		void setLambda(const Type _lambda) { this->lambda = static_cast<Type>(_lambda); }
+		Type getAlpha() const { return alpha; }
+		void setAlpha(Type _alpha) { this->alpha = static_cast<Type>(_alpha); }
+		Type getSigma2() const { return sigma2; }
+		void setSigma2(const Type _sigma2) { this->sigma2 = static_cast<Type>(_sigma2); }
+		void setMaxEpoch(int _maxepoch){ this->maxepoch = _maxepoch; }
+		void setEps(const Type _eps) { this->eps = _eps; }
+		Type getError() const { return static_cast<Type>(this->error); }
+		void setLambdaRate(const Type _lambdaRate) { this->lambdaRate = static_cast<Type>(_lambdaRate); }
+		Type getLambdaRate() { return this->lambdaRate; }
+		void setAlphaRate(const Type _alphaRate) { this->alphaRate = static_cast<Type>(_alphaRate); }
+		Type getAlphaRate() { return this->alphaRate; }
+		int getEpoch() { return epoch; }
+		vec getAvgData() { return avgData; }
 
 	private:
 		// =================================================================

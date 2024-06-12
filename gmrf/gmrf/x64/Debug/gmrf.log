@@ -1,0 +1,7 @@
+﻿  GMRF.cpp
+D:\yasuda-lab\M1\github\signal-processing-for-probabilistic-model\gmrf\gmrf\IVODGMRF.hpp(1,1): warning C4819: ファイルは、現在のコード ページ (932) で表示できない文字を含んでいます。データの損失を防ぐために、ファイルを Unicode 形式で保存してください。
+  (ソース ファイル 'GMRF.cpp' をコンパイルしています)
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\compare(12): warning STL4038: The contents of <compare> are available only with C++20 or later.
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+D:\yasuda-lab\M1\github\signal-processing-for-probabilistic-model\gmrf\gmrf\IVODGMRF.hpp(134,1): error C4716: 'GMRF::ivgmrf_od<double>::processBlock': 値を返さなければいけません

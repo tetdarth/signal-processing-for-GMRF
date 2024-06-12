@@ -26,7 +26,7 @@ namespace HGMRF {
 		dvhgmrf_od() {
 			this->lambda = 1e-11;
 			this->alpha = 1e-8;
-			this->gammma2 = 1e-8;
+			this->gamma2 = 1e-8;
 			this->sigma2 = 5e-01;
 			this->maxepoch = 1000;
 			this->eps = 1e-7;
@@ -71,7 +71,7 @@ namespace HGMRF {
 				std::cout << "error : " << error << std::endl;
 				std::cout << "alpha : " << this->alpha << std::endl;
 				std::cout << "lambda : " << this->lambda << std::endl;
-				std::cout << "gammma2 : " << this->gammma2 << std::endl;
+				std::cout << "gamma2 : " << this->gamma2 << std::endl;
 				for (u32 k = 0; k < this->enumerate; ++k) {
 					std::cout << "sigma2[" << k << "] : " << this->vec_sigma2[k] << std::endl;
 				}
@@ -94,19 +94,26 @@ namespace HGMRF {
 		// accessor
 		Type get_lambda() { return this->lambda; }
 		Type get_alpha() { return this->alpha; }
-		Type get_gammma2() { return this->gammma2; }
+		Type get_gamma2() { return this->gamma2; }
 		vec get_vec_sigma2() { return this->vec_sigma2; }
 		u32 get_epoch() { return this->epoch; }
 		vec get_avg_img() { return this->avg_img; }
 		vec get_v() { return this->v_final; }
-		vec get_w() { return this->w_final; }
-
+		vec get_w() { return this->w_final; }		
+		void set_lambda(const Type& _lambda) { this->lambda = _lambda; }
+		void set_alpha(const Type& _alpha) { this->alpha = _alpha; }
+		void set_gamma2(const Type& _gammma2) { this->gamma2 = _gammma2; }
+		void set_sigma2(const Type& _sigma2) { this->sigma2 = _sigma2; }
+		void set_epoch(const Type& _epoch) { this->epoch = _epoch; }
+		void set_lambda_rate(const Type& _lambda_rate) { this->lambda_rate = _lambda_rate; }
+		void set_alpha_rate(const Type& _alpha_rate) { this->alpha_rate = _alpha_rate; }
+		void set_gamma2_rate(const Type& _gamma2_rate) { this->gamma2_rate = _gamma2_rate; }
 		// ============================================================
 	private:
 		// HGMRF parameters
 		Type lambda;
 		Type alpha;
-		Type gammma2;
+		Type gamma2;
 		Type sigma2;
 		vec vec_sigma2;
 
@@ -141,7 +148,7 @@ namespace HGMRF {
 			const auto _n = static_cast<i32>(this->n);
 			const auto _lambda = this->lambda;
 			const auto _alpha = this->alpha;
-			const auto _gammma2 = this->gammma2;
+			const auto _gammma2 = this->gamma2;
 			const auto _vec_sigma2 = this->vec_sigma2;
 
 			Type inv_sigma2 = 0;
@@ -207,7 +214,7 @@ namespace HGMRF {
 			const auto _n = this->n;
 			const auto _lambda = this->lambda;
 			const auto _alpha = this->alpha;
-			const auto _gammma2 = this->gammma2;
+			const auto _gammma2 = this->gamma2;
 			const auto _eigen = this->eigen;
 			const auto _vec_sigma2 = this->vec_sigma2;
 
@@ -217,7 +224,7 @@ namespace HGMRF {
 			// variances for gradient
 			Type lambda_grad = 0.0;
 			Type alpha_grad = 0.5 * _gammma2 * _gammma2 * smooth_term(w, w) - 0.5 * smooth_term(u, u);
-			Type gammma2_grad = 0.0;
+			Type gamma2_grad = 0.0;
 			vec sigma2_strict(_enumerate, 0);
 
 			// parameters gradient estimation
@@ -230,18 +237,18 @@ namespace HGMRF {
 
 				lambda_grad += 0.5 * _gammma2 * _gammma2 * w[i] * w[i] - u[i] * u[i] + 0.5 * (2 / first - 1 / second) * inv_sigma2 * 1 / chi;
 				alpha_grad += 0.5 * (2 / first - 1 / second) * _eigen[i] * inv_sigma2 / chi;
-				gammma2_grad += 0.5 * v[i] * v[i] - 0.5 * inv_sigma2 / (chi * second);
+				gamma2_grad += 0.5 * v[i] * v[i] - 0.5 * inv_sigma2 / (chi * second);
 				for (u32 k = 0; k < _enumerate; ++k) sigma2_strict[k] += (noise[k][i] - u[i]) * (noise[k][i] - u[i]) + 1 / chi;
 			}
 			lambda_grad /= _n * _enumerate;
 			alpha_grad /= _n * _enumerate;
-			gammma2_grad /= _n * _enumerate;
+			gamma2_grad /= _n * _enumerate;
 			for (auto& sv : sigma2_strict) sv /= _n;
 
 			// Update parameters
 			this->lambda += this->lambda_rate * lambda_grad;
 			this->alpha += this->alpha_rate * alpha_grad;
-			this->gammma2 += this->gammma2_rate * gammma2_grad;
+			this->gamma2 += this->gammma2_rate * gamma2_grad;
 			this->vec_sigma2 = sigma2_strict;
 		}
 
