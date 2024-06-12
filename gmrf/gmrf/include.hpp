@@ -20,7 +20,7 @@
 
 
 using vec = std::vector<double>;
-using matrix = std::vector<std::vector<double>>;
+using mat = std::vector<std::vector<double>>;
 using mat3D = std::vector<std::vector<std::vector<double>>>;
 using u32 = uint_fast32_t;
 using i32 = int_fast32_t;

@@ -97,6 +97,7 @@ namespace HGMRF {
 		vec get_v() { return this->v_final; }
 		vec get_w() { return this->w_final; }
 
+
 		// ============================================================
 	private:
 		// HGMRF parameters

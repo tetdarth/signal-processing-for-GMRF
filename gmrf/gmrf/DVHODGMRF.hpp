@@ -20,7 +20,6 @@ namespace HGMRF {
 	{
 		using vec = std::vector<Type>;
 		using mat = std::vector<std::vector<Type>>;
-		using mat3D = std::vector<std::vector<std::vector<Type>>>;
 
 	public:
 		// ============================================================

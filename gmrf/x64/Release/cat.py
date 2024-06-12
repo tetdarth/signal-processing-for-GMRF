@@ -1,5 +1,6 @@
 import gmrf
 
 cat = gmrf.Cat("Shiro")
-cat.say()   # output "Shiro said meow."
+cat.say()
 cat.poop()
+cat.eat()

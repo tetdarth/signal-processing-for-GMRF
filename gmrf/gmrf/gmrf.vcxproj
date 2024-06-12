@@ -143,6 +143,13 @@
   <ItemGroup>
     <ClCompile Include="mycat.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DVHODGMRF.hpp" />
+    <ClInclude Include="DVODGMRF.hpp" />
+    <ClInclude Include="include.hpp" />
+    <ClInclude Include="IVHODGMRF.hpp" />
+    <ClInclude Include="IVODGMRF.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
