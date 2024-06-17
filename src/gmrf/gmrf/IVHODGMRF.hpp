@@ -25,27 +25,17 @@ namespace HGMRF {
 
 	public:
 		// ============================================================
-		ivhgmrf_od(
-			const Type& _lambda = 1e-11,
-			const Type& _alpha = 1e-8,
-			const Type& _gammma2 = 1e-8,
-			const Type& _sigma2 = 5e-01,
-			const Type& _maxepoch = 1000,
-			const Type& _eps = 1e-10,
-			const Type& _lambda_rate = 1e-13,
-			const Type& _alpha_rate = 1e-9,
-			const Type& _gammma2_rate = 1e-9
-		):
-			lambda(_lambda),
-			alpha(_alpha),
-			gamma2(_gammma2),
-			sigma2(_sigma2),
-			maxepoch(_maxepoch),
-			eps(_eps),
-			lambda_rate(_lambda_rate),
-			alpha_rate(_alpha_rate),
-			gamma2_rate(_gammma2_rate)
-		{}
+		ivhgmrf_od() {
+			this->lambda = 1e-11;
+			this->alpha = 5e-8;
+			this->gamma2 = 5e-8;
+			this->sigma2 = 5e-01;
+			this->maxepoch = 1000;
+			this->eps = 1e-10;
+			this->lambda_rate = 1e-12;
+			this->alpha_rate = 1e-8;
+			this->gamma2_rate = 1e-8;
+		}
 
 		~ivhgmrf_od() {}
 

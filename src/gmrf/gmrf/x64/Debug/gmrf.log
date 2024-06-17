@@ -1,7 +1,89 @@
-﻿  GMRF.cpp
-D:\yasuda-lab\M1\github\signal-processing-for-probabilistic-model\gmrf\gmrf\IVODGMRF.hpp(1,1): warning C4819: ファイルは、現在のコード ページ (932) で表示できない文字を含んでいます。データの損失を防ぐために、ファイルを Unicode 形式で保存してください。
-  (ソース ファイル 'GMRF.cpp' をコンパイルしています)
-  
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\compare(12): warning STL4038: The contents of <compare> are available only with C++20 or later.
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
-D:\yasuda-lab\M1\github\signal-processing-for-probabilistic-model\gmrf\gmrf\IVODGMRF.hpp(134,1): error C4716: 'GMRF::ivgmrf_od<double>::processBlock': 値を返さなければいけません
+﻿  gmrf.cpp
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVODGMRF.hpp(1,1): warning C4819: ファイルは、現在のコード ページ (932) で表示できない文字を含んでいます。データの損失を防ぐために、ファイルを Unicode 形式で保存してください。
+  The contents of <compare> are available only with C++20 or later.
+  The contents of <filesystem> are available only with C++17 or later.
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\DVHODGMRF.hpp(119,53): warning C4244: '=': 'const Type' から 'u32' への変換です。データが失われる可能性があります。
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\DVHODGMRF.hpp(119): message : クラス テンプレート メンバー関数 'void HGMRF::dvhgmrf_od<double>::set_eps(const Type &)' のコンパイル中
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(67): message : コンパイル対象の関数 テンプレート インスタンス化 'void HGMRF::dvhgmrf_od<double>::set_eps(const Type &)' のリファレンスを確認してください
+          with
+          [
+              Type=double
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\type_traits(495): message : コンパイル対象の クラス テンプレート インスタンス化 'HGMRF::dvhgmrf_od<double>' のリファレンスを確認してください
+C:\Miniconda3\include\pybind11-global\pybind11\pybind11.h(1575): message : コンパイル対象の クラス テンプレート インスタンス化 'std::is_polymorphic<HGMRF::dvhgmrf_od<double>>' のリファレンスを確認してください
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(59): message : コンパイル対象の クラス テンプレート インスタンス化 'pybind11::class_<HGMRF::dvhgmrf_od<double>>' のリファレンスを確認してください
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\DVHODGMRF.hpp(115,54): warning C4244: '=': 'const Type' から 'u32' への変換です。データが失われる可能性があります。
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\DVHODGMRF.hpp(115): message : クラス テンプレート メンバー関数 'void HGMRF::dvhgmrf_od<double>::set_epoch(const Type &)' のコンパイル中
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(67): message : コンパイル対象の関数 テンプレート インスタンス化 'void HGMRF::dvhgmrf_od<double>::set_epoch(const Type &)' のリファレンスを確認してください
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(125,53): warning C4244: '=': 'const Type' から 'u32' への変換です。データが失われる可能性があります。
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(125): message : クラス テンプレート メンバー関数 'void HGMRF::ivhgmrf_od<double>::set_eps(const Type &)' のコンパイル中
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(55): message : コンパイル対象の関数 テンプレート インスタンス化 'void HGMRF::ivhgmrf_od<double>::set_eps(const Type &)' のリファレンスを確認してください
+          with
+          [
+              Type=double
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.32.31326\include\type_traits(495): message : コンパイル対象の クラス テンプレート インスタンス化 'HGMRF::ivhgmrf_od<double>' のリファレンスを確認してください
+C:\Miniconda3\include\pybind11-global\pybind11\pybind11.h(1575): message : コンパイル対象の クラス テンプレート インスタンス化 'std::is_polymorphic<HGMRF::ivhgmrf_od<double>>' のリファレンスを確認してください
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(47): message : コンパイル対象の クラス テンプレート インスタンス化 'pybind11::class_<HGMRF::ivhgmrf_od<double>>' のリファレンスを確認してください
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(121,54): warning C4244: '=': 'const Type' から 'u32' への変換です。データが失われる可能性があります。
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(121): message : クラス テンプレート メンバー関数 'void HGMRF::ivhgmrf_od<double>::set_epoch(const Type &)' のコンパイル中
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\gmrf.cpp(55): message : コンパイル対象の関数 テンプレート インスタンス化 'void HGMRF::ivhgmrf_od<double>::set_epoch(const Type &)' のリファレンスを確認してください
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(43,12): warning C4244: '初期化中': 'const Type' から 'u32' への変換です。データが失われる可能性があります。
+          with
+          [
+              Type=double
+          ]
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\gmrf\IVHODGMRF.hpp(28): message : クラス テンプレート メンバー関数 'HGMRF::ivhgmrf_od<double>::ivhgmrf_od(const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &)' のコンパイル中
+          with
+          [
+              Type=double
+          ]
+C:\Miniconda3\include\pybind11-global\pybind11\detail\init.h(76): message : コンパイル対象の関数 テンプレート インスタンス化 'HGMRF::ivhgmrf_od<double>::ivhgmrf_od(const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &,const Type &)' のリファレンスを確認してください
+          with
+          [
+              Type=double
+          ]
+     ライブラリ C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\x64\Debug\gmrf.lib とオブジェクト C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\x64\Debug\gmrf.exp を作成中
+gmrf.obj : error LNK2019: 未解決の外部シンボル __imp__invalid_parameter が関数 "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z) で参照されました
+gmrf.obj : error LNK2019: 未解決の外部シンボル __imp__CrtDbgReport が関数 "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl std::operator+<char,struct std::char_traits<char>,class std::allocator<char> >(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > &&)" (??$?HDU?$char_traits@D@std@@V?$allocator@D@1@@std@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@0@$$QEAV10@0@Z) で参照されました
+C:\Users\sho11\Desktop\github\signal-processing-for-probabilistic-model\src\gmrf\x64\Debug\gmrf.pyd : fatal error LNK1120: 2 件の未解決の外部参照
