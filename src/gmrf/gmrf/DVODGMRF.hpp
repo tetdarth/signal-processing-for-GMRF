@@ -85,6 +85,9 @@ namespace GMRF
 		vec getAvgData() const { return avgData; }
 		Type getLambdaRate() const { return this->lambdaRate; }
 		Type getAlphaRate() const { return this->alphaRate; }
+		py::array_t<Type> get_vec_sigma2() {
+			return vector_to_ndarray(this->sigma2);
+		}
 
 	private:
 		// =================================================================

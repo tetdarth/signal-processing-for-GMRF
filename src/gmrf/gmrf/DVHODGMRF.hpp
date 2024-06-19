@@ -100,7 +100,7 @@ namespace HGMRF {
 		Type get_lambda() { return this->lambda; }
 		Type get_alpha() { return this->alpha; }
 		Type get_gamma2() { return this->gamma2; }
-		vec get_vec_sigma2() { return this->vec_sigma2; }
+		py::array_t<double> get_vec_sigma2() { return vector_to_ndarray(this->vec_sigma2); }
 		u32 get_epoch() { return this->epoch; }
 		vec get_avg_img() { return this->avg_img; }
 		vec get_v() { return this->v_final; }
