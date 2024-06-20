@@ -112,11 +112,11 @@ namespace HGMRF {
 		void set_alpha(const Type& _alpha) { this->alpha = _alpha; }
 		void set_gamma2(const Type& _gammma2) { this->gamma2 = _gammma2; }
 		void set_sigma2(const Type& _sigma2) { this->sigma2 = _sigma2; }
-		void set_epoch(const Type& _epoch) { this->epoch = _epoch; }
+		void set_epoch(const u32& _epoch) { this->maxepoch = _epoch; }
 		void set_lambda_rate(const Type& _lambda_rate) { this->lambda_rate = _lambda_rate; }
 		void set_alpha_rate(const Type& _alpha_rate) { this->alpha_rate = _alpha_rate; }
 		void set_gamma2_rate(const Type& _gamma2_rate) { this->gamma2_rate = _gamma2_rate; }
-		void set_eps(const Type& _eps) { this->maxepoch = _eps; }
+		void set_eps(const Type& _eps) { this->eps = _eps; }
 
 		// ============================================================
 	private:

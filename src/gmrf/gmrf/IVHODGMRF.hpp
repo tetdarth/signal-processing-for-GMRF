@@ -48,7 +48,7 @@ namespace HGMRF {
 
 			// Image setting
 			this->enumerate = static_cast<u32>(noise.size());
-			this->n = static_cast<u32>(noise.at(0).size());
+			this->n = static_cast<u32>(noise[0].size());
 			this->eigen = calc_eigen(noise[0]);
 			this->expect = calc_expect(noise);
 			this->avg_signal = averaging(noise);
@@ -108,11 +108,11 @@ namespace HGMRF {
 		void set_alpha(const Type& _alpha) { this->alpha = _alpha; }
 		void set_gamma2(const Type& _gammma2) { this->gamma2 = _gammma2; }
 		void set_sigma2(const Type& _sigma2) { this->sigma2 = _sigma2; }
-		void set_epoch(const Type& _epoch) { this->epoch = _epoch; }
+		void set_epoch(const u32& _epoch) { this->maxepoch = _epoch; }
 		void set_lambda_rate(const Type& _lambda_rate) { this->lambda_rate = _lambda_rate; }
 		void set_alpha_rate(const Type& _alpha_rate) { this->alpha_rate = _alpha_rate; }
 		void set_gamma2_rate(const Type& _gamma2_rate) { this->gamma2_rate = _gamma2_rate; }
-		void set_eps(const Type& _eps) { this->maxepoch = _eps; }
+		void set_eps(const Type& _eps) { this->eps = _eps; }
 
 
 		// ============================================================
@@ -241,7 +241,7 @@ namespace HGMRF {
 				lambda_grad += (0.5 * _gammma2 * _gammma2 * w[i] * w[i] - 0.5 * u[i] * u[i]) / _enumerate + 0.5 * (2 / first - 1 / second) / (chi * _sigma2);
 				alpha_grad += 0.5 * (2 / first - 1 / second) * _eigen[i] / (chi * _sigma2);
 				gammma2_grad += 0.5 * v[i] * v[i] / _enumerate - 0.5 / (chi * _sigma2 * second);
-				for (const auto& img : noise) sigma2_strict += (img[i] - u[i]) * (img[i] - u[i]) / _enumerate + 1 / chi;
+				for (const auto& p : noise) sigma2_strict += (p[i] - u[i]) * (p[i] - u[i]) / _enumerate + 1 / chi;
 			}
 			lambda_grad /= _n;
 			alpha_grad /= _n;
