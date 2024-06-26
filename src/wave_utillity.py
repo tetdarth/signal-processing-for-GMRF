@@ -8,6 +8,10 @@ class wave_utillity:
     dt = 1.0 / fs
     Frange = fs / 2.56      # 分析周波数
     time = np.arange(0, sec, dt)      # 時間軸データ
+    han = np.hanning(n)     # ハン窓の取得
+    acf = 1/(sum(han)/n)    # Amplitude Correction Factor(振幅補正係数)の計算
+    
+    plt.rcParams["font.size"] = 14
 
     # 信号生成
     def create_wave(self, freqs, offset = 0):
@@ -28,9 +32,11 @@ class wave_utillity:
         return corrupt
 
     # 信号の高速フーリエ変換
-    def fft(self, wave):
+    def fft(self, wave, window=True):
+        if window:
+            wave = wave * self.han
         fft_wave = np.fft.fft(wave)
-        fft_wave = abs(fft_wave * 2 / self.n)
+        fft_wave = abs(fft_wave * 2 / self.n) * self.acf
         fft_wave[0] = abs(fft_wave[0] / 2)
         return fft_wave
     
@@ -43,10 +49,14 @@ class wave_utillity:
         return avg   
         
     # 波形の時間軸のプロット
-    def wave_plot(self, wave, title="", savefig=False):
+    def wave_plot(self, wave, title="", savefig=False, hanning=False):
+        if hanning:
+            wave = wave * self.han
         plt.plot(self.time, wave) # y-t グラフのプロット
         plt.xlim(0, self.sec) # 横軸に関する描画範囲指定
         plt.title(title)
+        plt.xlabel("time[sec]") #横軸ラベル
+        # plt.ylabel("Amplitude spectrum[V]") #縦軸ラベル
         if savefig:
             plt.savefig(title + ".jpg", format="jpg")
         plt.show() # グラフの表示
@@ -60,6 +70,7 @@ class wave_utillity:
         plt.xlim(0, self.Frange) #横軸の最小値、最大値
         plt.xlabel("Frequency[Hz]") #横軸ラベル
         plt.ylabel("Amplitude spectrum[V]") #縦軸ラベル
+        plt.title(title)
         if savefig:
             plt.savefig(title + ".jpg", format="jpg")
         plt.show()
@@ -105,6 +116,8 @@ class wave_utillity:
         self.dt = 1.0 / self.fs
         self.Frange = self.fs / 2.56      # 分析周波数
         self.time = np.arange(0, self.sec, self.dt)      # 時間軸データ
+        self.han = np.hanning(self.n)     # ハン窓の取得
+        self.acf = 1/(sum(self.han)/self.n)
         if info:
             print("===== wave info =====")
             print("sampleing freq -> {}".format(self.fs))

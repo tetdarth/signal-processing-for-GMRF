@@ -7,10 +7,10 @@ w.fs = 128
 w.update(info=False)
 
 # 波形の生成
-freqs = [(2, 1.0), (3, 1.0), (5, 1.0), (7, 1.0), (11, 1.0)]
+freqs = [(4, 1.0), (9, 1.0), (16, 1.0), (25, 1.0)]
 wave = w.create_wave(freqs)
 w.wave_plot(wave, savefig=True, title="original_wave")
-w.freq_plot(w.fft(wave), savefig=True, title="original_freq")
+w.freq_plot(w.fft(wave, window=True), savefig=True, title="original_freq")
 
 # 画像の劣化
 corrupted = w.wave_corruption(wave, 0, 1.2)
@@ -29,7 +29,7 @@ avg = w.wave_avg(cor_waves)     # 平均化信号
 ivgmrf = gmrf.ivgmrf.ivgmrf()
 ivgmrf._lambda = 1e-11
 ivgmrf._lambda_rate = 1e-11
-ivgmrf._alpha_rate = 5e-8
+ivgmrf._alpha_rate = 1e-8
 ivgmrf._epoch = 1000
 ivgmrf.set_eps(1e-11)
 denoised_for_ivgmrf = ivgmrf.denoise(cor_waves)     # ノイズ除去信号
@@ -41,7 +41,7 @@ print(" ============== ")
 dvgmrf = gmrf.dvgmrf.dvgmrf()
 dvgmrf._lambda = 1e-11
 dvgmrf._lambda_rate = 1e-11
-dvgmrf._alpha_rate = 5e-8
+dvgmrf._alpha_rate = 1e-8
 dvgmrf._epoch = 1000
 dvgmrf.set_eps(1e-11)
 denoised_for_dvgmrf = dvgmrf.denoise(cor_waves)     # ノイズ除去信号

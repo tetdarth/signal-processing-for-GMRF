@@ -35,7 +35,7 @@ print("predict iter = {}".format(m._epoch))
 # 波形の時間軸での比較
 w.wave_compare([(wave, "origin"), 
                 # (corrupted, "corrupted"),
-                # (avg, "average"), 
+                (avg, "average"), 
                 (denoised, "gmrf")
                 ], 
                savefig=True,
@@ -46,7 +46,7 @@ w.wave_compare([(wave, "origin"),
 # 波形の周波数軸での比較
 w.freq_compare([(w.fft(wave), "origin"),
                 # (w.fft(corrupted), "corrupted"),
-                # (w.fft(avg), "average"),
+                (w.fft(avg), "average"),
                 (w.fft(denoised), "gmrf")
                 ],
                savefig=True,
