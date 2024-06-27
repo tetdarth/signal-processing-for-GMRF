@@ -91,8 +91,7 @@ namespace HGMRF {
 			this->v_final = std::move(v);
 			this->w_final = std::move(w);
 
-			py::array_t<Type> result = std::move(vector_to_ndarray(decenterling(u)));
-			return result;
+			return vector_to_ndarray(decenterling(u));
 		}
 
 		// ============================================================
@@ -229,7 +228,7 @@ namespace HGMRF {
 			const auto _vec_sigma2 = this->vec_sigma2;
 
 			Type inv_sigma2 = 0;
-			for (auto& vs : _vec_sigma2) inv_sigma2 += 1 / vs;
+			for (const auto& vs : _vec_sigma2) inv_sigma2 += 1 / vs;
 
 			// variances for gradient
 			Type lambda_grad = 0.0;
@@ -245,7 +244,7 @@ namespace HGMRF {
 				const Type psi = first * first / second;
 				const Type chi = inv_sigma2 + psi;
 
-				lambda_grad += 0.5 * _gammma2 * _gammma2 * w[i] * w[i] - u[i] * u[i] + 0.5 * (2 / first - 1 / second) * inv_sigma2 * 1 / chi;
+				lambda_grad += 0.5 * _gammma2 * _gammma2 * w[i] * w[i] - 0.5 * u[i] * u[i] + 0.5 * (2 / first - 1 / second) * inv_sigma2 / chi;
 				alpha_grad += 0.5 * (2 / first - 1 / second) * _eigen[i] * inv_sigma2 / chi;
 				gamma2_grad += 0.5 * v[i] * v[i] - 0.5 * inv_sigma2 / (chi * second);
 				for (u32 k = 0; k < _enumerate; ++k) sigma2_strict[k] += (noise[k][i] - u[i]) * (noise[k][i] - u[i]) + 1 / chi;

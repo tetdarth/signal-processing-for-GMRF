@@ -1,27 +1,39 @@
 import numpy as np
+from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 
 class wave_utillity:
-    fs = 128
-    sec = 1.0
-    n = int(fs * sec)
-    dt = 1.0 / fs
+    #################################
+    fs = 128                # サンプリング周波数
+    sec = 1.0               # 窓時間
+    n = int(fs * sec)       # サンプル数
+    dt = 1.0 / fs           # 周期
     Frange = fs / 2.56      # 分析周波数
     time = np.arange(0, sec, dt)      # 時間軸データ
-    han = np.hanning(n)
-    acf = 1/(sum(han)/n)
+    han = np.hanning(n)     # ハン窓
+    acf = 1/(sum(han)/n)    # ハン窓の面積
 
-    plt.rcParams["font.size"] = 14
+    ##################################
+    plt.rcParams["font.size"] = 14  # グラフのフォントサイズ
 
+    ##################################
     # 信号生成
-    def create_wave(self, freqs, offset = 0):
+    def create_wave(self, freqs, offset = 0, normalize = True):
         time = np.arange(0, self.sec, self.dt)      # 時間軸データ
         wave = time * 0     # 出力信号
-        for freq, gain in freqs:
+        min_max = 0
+        for freq, amp in freqs:
+            min_max += amp
+        
+        for freq, amp in freqs:
             if freq > int(self.n/2) :
                 print("WARNING!!! Contains signals above the Nyquist frequency : {}Hz".format(freq))
-            sine = gain * np.sin(2 * np.pi * freq * time) + offset
+            sine = amp * np.sin(2 * np.pi * freq * time) + offset
             wave += sine
+
+        if normalize:
+            wave /= min_max
+
         return wave
     
     # 信号の劣化(ガウスノイズ)
@@ -35,21 +47,21 @@ class wave_utillity:
     def fft(self, wave, window=True):
         if window:
             wave = wave * self.han
-        fft_wave = np.fft.fft(wave)
-        fft_wave = abs(fft_wave * 2 / self.n)
+        fft_wave = fft(wave, norm="ortho")
+        fft_wave = np.abs(fft_wave * 2 / self.n)
         if window:
             fft_wave = fft_wave * self.acf
         fft_wave[0] = abs(fft_wave[0] / 2)
         return fft_wave
     
     # 平均化した波形
-    def wave_avg(self, waves):
+    def wave_averaging(self, waves):
         avg = self.time * 0
         for w in waves:
             avg += w
         avg /= len(waves)
-        return avg   
-        
+        return avg
+
     # 波形の時間軸のプロット
     def wave_plot(self, wave, title="", savefig=False, window=False):
         if window:

@@ -87,8 +87,7 @@ namespace HGMRF {
 			this->v_final = std::move(v);
 			this->w_final = std::move(w);
 
-			py::array_t<Type> result = std::move(vector_to_ndarray(decenterling(u)));
-			return result;
+			return vector_to_ndarray(decenterling(u));
 		}
 
 		// ============================================================
