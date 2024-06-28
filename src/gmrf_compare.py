@@ -9,7 +9,7 @@ w.update(info=False)
 # 波形の生成
 freqs = [(6, 0.4), (9, 0.6), (14, 0.6)]
 wave = w.create_wave(freqs)
-w.wave_plot(wave, savefig=True, title="original_wave", window=False)
+w.wave_plot(wave, savefig=True, title="original_wave", window=True)
 w.freq_plot(w.fft(wave, window=True), savefig=True, title="original_freq")
 
 # 画像の劣化

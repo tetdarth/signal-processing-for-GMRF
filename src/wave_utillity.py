@@ -47,7 +47,7 @@ class wave_utillity:
     def fft(self, wave, window=True):
         if window:
             wave = wave * self.han
-        fft_wave = fft(wave, norm="ortho")
+        fft_wave = fft(wave, norm="backward")
         fft_wave = np.abs(fft_wave * 2 / self.n)
         if window:
             fft_wave = fft_wave * self.acf
