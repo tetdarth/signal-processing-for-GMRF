@@ -19,8 +19,8 @@ corrupted2 = w.wave_corruption(wave, 0, 0.25)
 
 # 劣化信号をまとめたndarray
 cor_waves = [corrupted,     
-             corrupted1,
-             corrupted2,
+             # corrupted1,
+             # corrupted2,
              ]
 
 avg = w.wave_averaging(cor_waves)     # 平均化信号
@@ -52,14 +52,14 @@ print(" ============== ")
 
 # ivhgmrfによるノイズ除去
 ivhgmrf = gmrf.ivhgmrf.ivhgmrf()
-ivhgmrf._lambda = 1e-6
-ivhgmrf._lambda_rate = 5e-6
-ivhgmrf._alpha_rate = 1e-6
+ivhgmrf._lambda = 1e-8
+ivhgmrf._lambda_rate = 1e-6
+ivhgmrf._alpha = 1e-6
 ivhgmrf._alpha_rate = 1e-5
 ivhgmrf._gamma2 = 1e-3
 ivhgmrf._gamma2_rate = 1e-5
 ivhgmrf._epoch = 1000
-ivhgmrf.set_eps(1e-5)
+ivhgmrf.set_eps(1e-8)
 denoised_for_ivhgmrf = ivhgmrf.denoise(cor_waves)
 print("[ivhgmrf] iter = {}".format(ivhgmrf._epoch))
 print("[ivhgmrf] predict sigma2 = {}".format(ivhgmrf._sigma2))
@@ -70,14 +70,14 @@ print(" ============== ")
 
 # dvhgmrfによるノイズ除去
 dvhgmrf = gmrf.dvhgmrf.dvhgmrf()
-dvhgmrf._lambda = 1e-6
-dvhgmrf._lambda_rate = 5e-6
-dvhgmrf._alpha_rate = 1e-6
+dvhgmrf._lambda = 1e-8
+dvhgmrf._lambda_rate = 1e-6
+dvhgmrf._alpha = 1e-6
 dvhgmrf._alpha_rate = 1e-5
 dvhgmrf._gamma2 = 1e-3
 dvhgmrf._gamma2_rate = 1e-5
 dvhgmrf._epoch = 1000
-dvhgmrf.set_eps(1e-5)
+dvhgmrf.set_eps(1e-8)
 denoised_for_dvhgmrf = dvhgmrf.denoise(cor_waves)
 print("[dvhgmrf] iter = {}".format(dvhgmrf._epoch))
 print("[dvhgmrf] predict sigma = {}".format(dvhgmrf._sigma2))

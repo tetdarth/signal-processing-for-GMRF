@@ -90,8 +90,8 @@ class Net(nn.Module):
         super().__init__()
         # 各層を全結合(Linear)
         self.layer1 = nn.Linear(n_input, n_hidden)
-        self.layer2 = nn.Linear(n_hidden, n_hidden)
-        self.layer3 = nn.Linear(n_hidden, n_output)
+        self.layer2 = nn.Linear(n_hidden, 64)
+        self.layer3 = nn.Linear(64, n_output)
         self.relu = nn.ReLU(inplace=True)
         
     # 各層を結合
@@ -128,6 +128,7 @@ for epoch in range(num_epoch):
     # 学習
     for input, label in train_loader:
         n_train += len(label)
+        
         # 入力と正解ラベルをGPU上に移動
         input = input.to(device)
         label = label.to(device)
