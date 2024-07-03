@@ -3,6 +3,11 @@ import pandas as pd
 import os
 from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
+import time
+
+
+# 実行時間表示
+show_time = True
 
 #####################################
 # データを切り出すパラメータ
@@ -13,7 +18,7 @@ interval_time = 4    # スライス間隔  (4秒)
 interval = int(interval_time*fs)
 
 # 不整合データのパラメータ
-integre_max = 4000.0
+integre_max = 14000.0
 integre_min = 96.0
 
 #####################################
@@ -22,12 +27,14 @@ rows = 5
 cols = frame
 template = np.tile(np.arange(0, rows), (cols, 1)).T
 
+# 配列要素がすべて同じならTrue
 def is_identical_element(data):
     for num_template in template:
         if np.array_equiv(data, num_template):
             return True
     return False
 
+# 配列が正常値内に存在していればTrue
 def is_tolerance(data):
     if not integre_min <= np.min(data) or not np.max(data) <= integre_max:
         return False
@@ -35,6 +42,9 @@ def is_tolerance(data):
 
 #####################################
 def create_dataset(dir):
+    if show_time:
+        t1 = time.time()   # 時間計測start
+    
     # pandasでcsvを読み込み
     wave = pd.read_csv(dir+"wave.csv", names=["R", "L", "R_gain", "L_gain"])
     position = pd.read_csv(dir+"position.csv")
@@ -79,7 +89,15 @@ def create_dataset(dir):
             rdata = np.vstack((rdata, right))
             ldata = np.vstack((ldata, left))
             
+    if show_time:
+        t2 = time.time()    # 時間計測end
+        elapsed_time = t2-t1
+        print(f"経過時間：{elapsed_time:.3}[s]")
+    
     print(f"data[{len(rdata)} / {i}]")
-    print(rdata)
 
-create_dataset("data\\raw\\LMH\\H002\\H002_fl_center\\")
+create_dataset("raw\\LMH\\H002\\H002_fl_center\\")
+create_dataset("raw\\LMH\\H002\\H002_ka_center\\")
+create_dataset("raw\\LMH\\H002\\H002_ka_left\\")
+create_dataset("raw\\LMH\\H002\\H002_ka_right\\")
+create_dataset("raw\\LMH\\H002\\H002_st_center\\")

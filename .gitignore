@@ -1,3 +1,5 @@
 src/gmrf/.vs
 *.jpg
 data/
+dataset/
+raw/
