@@ -18,7 +18,7 @@ corrupted1 = w.wave_corruption(wave, 0, 0.3)
 corrupted2 = w.wave_corruption(wave, 0, 0.25)
 
 # 劣化信号をまとめたndarray
-cor_waves = [corrupted,     
+cor_waves = [corrupted,
              # corrupted1,
              # corrupted2,
              ]
