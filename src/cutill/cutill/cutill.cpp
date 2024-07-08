@@ -14,6 +14,7 @@ py::tuple normalize(py::array_t<double>& _data1, py::array_t<double>& _data2) {
 	vector<double> data1 = ndarray_to_vector(_data1);
 	vector<double> data2 = ndarray_to_vector(_data2);
 
+	// Å‘å’l•Å¬’l‚Ì’Tõ
 	double data1_max = DBL_MIN;
 	double data1_min = DBL_MAX;
 	double data2_max = DBL_MIN;

@@ -17,7 +17,7 @@ show_time = True
 
 '''################ parameters #####################'''
 # データセットのパス
-data_path = tester.H002.st_center.value
+data_path = tester.H002.fl_center.value
 
 # データを切り出すパラメータ
 fs = 128        # サンプリング周波数
@@ -69,6 +69,7 @@ def wave_plot(wave1, wave2=None):
 
     plt.show()
 
+# 周波数の簡易プロット
 def freq_plot(fft1, fft2=None):
     # 周波数軸の作成
     freq = np.linspace(0, fs, fft1.size)
@@ -109,8 +110,6 @@ def preprocess(dir):
     pdata = np.empty(0)            # positionの最終的な配列を格納するndarray
     fdata = np.empty((0, frame))   # fftの最終的な配列を格納するndarray
     i = 0
-    rdata = np.empty((0, frame))
-    ldata = np.empty((0, frame))
 
     # 前処理
     for start in range(0, wave_time-frame_time, interval_time):
@@ -162,12 +161,10 @@ def preprocess(dir):
         # freq_plot(freq)
 
         # dataを2次元numpy配列として追加
-        rdata = np.vstack((rdata, right))
-        ldata = np.vstack((ldata, left))
         pdata = np.append(pdata, pos[0]) if pdata.size else pos[0]
         fdata = np.vstack((fdata, freq)) if fdata.size else freq
 
-    print(f"data[{len(rdata)} / {i}]")
+    print(f"data[{len(fdata)} / {i}]")
     return fdata, pdata
 
 # データセットの作成
@@ -182,7 +179,6 @@ def create_dataset(dir):
 
     # rawデータの前処理
     freq, position = preprocess("raw\\"+dir)
-    print(freq.shape)
 
     # データをcsvに書き出し
     for i in range(len(freq)):
