@@ -28,9 +28,10 @@ py::tuple normalize(py::array_t<double>& _data1, py::array_t<double>& _data2) {
 	double minim = std::min(data1_min, data2_min);
 	double gap = maxim - minim;
 
+	// ³‹K‰»
 	for (size_t i = 0; i < data1.size(); i++) {
-		data1[i] = (data1[i] - minim) / gap * 2 - 1;
-		data2[i] = (data2[i] - minim) / gap * 2 - 1;
+		data1[i] = (2*data1[i] - minim - maxim) / gap;
+		data2[i] = (2*data2[i] - minim - maxim) / gap;
 	}
 
 	return py::make_tuple(vector_to_ndarray(data1), vector_to_ndarray(data2));
