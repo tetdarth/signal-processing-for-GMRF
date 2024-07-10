@@ -44,10 +44,15 @@ bool is_identical_element(py::array_t<double>& _data) {
 	vector<double> data = ndarray_to_vector(_data);
 
 	double sample = data[1];
+	bool ans = true;
+	#pragma omp parallel for
 	for (int i = 0; i < data.size(); i++) {
-		if (sample != data[i]) return false;
+		if (sample != data[i]) {
+			ans = false;
+			break;
+		}
 	}
-	return true;
+	return ans;
 }
 
 // ==============================================================================

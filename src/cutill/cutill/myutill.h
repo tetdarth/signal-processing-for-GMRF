@@ -3,6 +3,8 @@
 #include <vector>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <omp.h>
+
 namespace py = pybind11;
 using namespace std;
 
@@ -11,9 +13,14 @@ std::vector<double> ndarray_to_vector(py::array_t<double>& array) {
     // バッファ情報を取得
     py::buffer_info buf_info = array.request();
     double* ptr = static_cast<double*>(buf_info.ptr);
+    int size = buf_info.size;
 
     // std::vectorに変換
-    std::vector<double> vec(ptr, ptr + buf_info.size);
+    std::vector<double> vec(size);
+    #pragma omp parallel for
+    for (int i = 0; i < size; ++i) {
+        vec[i] = ptr[i];
+    }
 
     return vec;
 }
