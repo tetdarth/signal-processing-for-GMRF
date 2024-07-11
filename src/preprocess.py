@@ -27,7 +27,7 @@ frame = frame_time*fs   # 窓幅
 interval = interval_time*fs    # スライス幅
 df = fs/frame   # 1サンプルあたりの周波数間隔
 han = np.hanning(frame)     # ハン窓
-acf = 1/(sum(han)/frame)    # ハン窓の面積
+acf = frame/sum(han)    # ハン窓の面積比
 
 # 不整合データのパラメータ
 tolerance_max = 4000.0
@@ -110,10 +110,10 @@ def preprocess(dir):
         pos = position[start : start + frame_time]
 
         # waveとをnumpy配列に変換
-        rraw = window['R'].to_numpy()
         lraw = window['L'].to_numpy()
-        rgain = window['R_gain'].to_numpy()
+        rraw = window['R'].to_numpy()
         lgain = window['L_gain'].to_numpy()
+        rgain = window['R_gain'].to_numpy()
         pos = pos.to_numpy()
 
         # データの整合性を確認
@@ -127,29 +127,30 @@ def preprocess(dir):
             continue
 
         # 波形の復元
-        right = rraw * 2.818 ** rgain
         left = lraw * 2.818 ** lgain
+        right = rraw * 2.818 ** rgain
 
         # 波形の正規化
-        right, left = c.normalize(right, left)
-        # wave_plot(left, right)
+        left, right = c.normalize(left, right)
 
         # 窓関数を適用
-        right = right * han
         left = left * han
+        right = right * han
 
         # FFT
-        right_freq = fft(right, norm="ortho")
         left_freq = fft(left, norm="ortho")
+        right_freq = fft(right, norm="ortho")
+        
+        # 低周波を除去
+        left_freq[0:11] *= 1e-10
+        right_freq[frame-10:] *= 1e-10
 
         # 振幅スペクトルに変換
-        right_freq = np.log(np.abs(right_freq)) * 20
         left_freq = np.log(np.abs(left_freq)) * 20
-        # freq_plot(left_freq, right_freq)
+        right_freq = np.log(np.abs(right_freq)) * 20
 
         # 左右の周波数を結合
-        freq = np.hstack((left_freq[11:(frame//2)+1], right_freq[frame//2:frame-10]))
-        # freq_plot(freq)
+        freq = np.hstack((left_freq[:(frame//2)+1], right_freq[frame//2:]))
 
         # dataを2次元numpy配列として追加
         pdata = np.append(pdata, pos[0]) if pdata.size else pos[0]
@@ -170,19 +171,20 @@ def create_dataset(dir):
 
     # rawデータの前処理
     freq, position = preprocess("raw\\"+dir)
+    files = {1:0, 2:0, 3:0, 4:0,}
 
     # データをcsvに書き出し
     for i in range(len(freq)):
         # ndarrayをDataFrameに変換
         fdata = pd.DataFrame(freq[i]).astype(np.float64)
-        pdata = position[i]
+        pdata = int(position[i])
+        files[pdata] += 1
 
         # DataFrameをcsvに書き出し
-        path = ".\\datasets\\" + dir +"\\" + str(int(pdata))
+        path = ".\\datasets\\" + dir +"\\" + str(pdata)
         if not os.path.exists(path):
             os.makedirs(path)
-        files = sum(os.path.isfile(os.path.join(path, name)) for name in os.listdir(path))
-        fdata.to_csv(path + "\\" + str(files+1) + ".csv")
+        fdata.to_csv(path + "\\" + str(files[pdata]) + ".csv")
 
     if show_time:
         t2 = time.time()    # 時間計測end

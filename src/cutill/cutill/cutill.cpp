@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 #include "myutill.h"
 
 using namespace std;
@@ -27,12 +28,11 @@ py::tuple normalize(py::array_t<double>& _data1, py::array_t<double>& _data2) {
 	}
 	double maxim = std::max(data1_max, data2_max);
 	double minim = std::min(data1_min, data2_min);
-	double gap = maxim - minim;
 
 	// ê≥ãKâª
-	for (size_t i = 0; i < data1.size(); i++) {
-		data1[i] = (2*data1[i] - minim - maxim) / gap;
-		data2[i] = (2*data2[i] - minim - maxim) / gap;
+	for (int i = 0; i < data1.size(); i++) {
+		data1[i] = (2 * data1[i] - minim - maxim) / (maxim - minim);
+		data2[i] = (2 * data2[i] - minim - maxim) / (maxim - minim);
 	}
 
 	return py::make_tuple(vector_to_ndarray(data1), vector_to_ndarray(data2));
@@ -46,7 +46,7 @@ bool is_identical_element(py::array_t<double>& _data) {
 	double sample = data[1];
 	bool ans = true;
 	#pragma omp parallel for
-	for (int i = 0; i < data.size(); i++) {
+	for (int i = 0; i < data.size(); ++i) {
 		if (sample != data[i]) {
 			ans = false;
 			break;
