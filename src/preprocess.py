@@ -94,7 +94,7 @@ def freq_plot(fft1, fft2=None):
 def preprocess(dir):
     # pandasでcsvを読み込み
     wave = pd.read_csv(dir+"\\wave.csv", names=["L", "R", "L_gain", "R_gain"])
-    position = pd.read_csv(dir+"\\position.csv")
+    posture = pd.read_csv(dir+"\\position.csv")
 
     # waveの長さ [s]
     wave_time = int(len(wave)/fs)
@@ -107,7 +107,7 @@ def preprocess(dir):
         i += 1
         # waveとpositionを4秒間隔で10秒間スライス
         window = wave[start*fs : (start + frame_time)*fs]
-        pos = position[start : start + frame_time]
+        pos = posture[start : start + frame_time]
 
         # waveとをnumpy配列に変換
         lraw = window['L'].to_numpy()
@@ -140,7 +140,7 @@ def preprocess(dir):
         # FFT
         left_freq = fft(left, norm="ortho")
         right_freq = fft(right, norm="ortho")
-        
+
         # 低周波を除去
         left_freq[0:11] *= 1e-10
         right_freq[frame-10:] *= 1e-10
@@ -150,7 +150,7 @@ def preprocess(dir):
         right_freq = np.log(np.abs(right_freq)) * 20
 
         # 左右の周波数を結合
-        freq = np.hstack((left_freq[:(frame//2)+1], right_freq[frame//2:]))
+        freq = np.hstack((left_freq[:(frame//2)], right_freq[frame//2:]))
 
         # dataを2次元numpy配列として追加
         pdata = np.append(pdata, pos[0]) if pdata.size else pos[0]
@@ -170,14 +170,14 @@ def create_dataset(dir):
             shutil.rmtree(p)
 
     # rawデータの前処理
-    freq, position = preprocess("raw\\"+dir)
+    freq, posture = preprocess("raw\\"+dir)
     files = {1:0, 2:0, 3:0, 4:0,}
 
     # データをcsvに書き出し
     for i in range(len(freq)):
         # ndarrayをDataFrameに変換
-        fdata = pd.DataFrame(freq[i]).astype(np.float64)
-        pdata = int(position[i])
+        fdata = pd.DataFrame({'data':freq[i]}).astype(np.float64)
+        pdata = int(posture[i])
         files[pdata] += 1
 
         # DataFrameをcsvに書き出し
