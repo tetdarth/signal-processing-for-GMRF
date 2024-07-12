@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 import tester
 import preprocess as pp
 from pathlib import Path
@@ -8,11 +6,12 @@ from torchvision import transforms
 
 # データセットを読み込むためのDataLoaderを定義
 class DatasetLoader(Dataset):
-    def __init__(self, tester, transform=None):
+    def __init__(self, tester, type, transform=None):
         '''
         データの初期化&前処理
         arugumets:
-            tester(tester): csvファイルの属性
+            tester(tester): テスターとマットレス
+            type(type): 読み込むデータの種類 ("cepstrum" or "gmrf")
         '''
         self.csv_file = tester.value
         self.transform = transform
@@ -21,16 +20,14 @@ class DatasetLoader(Dataset):
 
     def __len__(self):
         '''
-        データの大きさを返す'''
-        return len(self.data[0])
+        データの大きさを返す
+        '''
+        return len(self.data)
 
     def __getitem__(self, idx):
         '''
         idxに対応するデータとラベルを返す
         arguments:
-            idx (int): データのインデックス'''
+            idx (int): データのインデックス
+        '''
         return self.data[idx], self.posture[idx]
-
-tester = tester.H002.fl_center.value
-data, posture = pp.preprocess("raw\\"+tester)
-print(len(data[0]))

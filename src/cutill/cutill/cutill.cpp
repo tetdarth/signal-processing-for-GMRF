@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <omp.h>
 #include "myutill.h"
 
 using namespace std;
