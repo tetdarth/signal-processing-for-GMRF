@@ -3,11 +3,12 @@ import pandas as pd
 import os
 from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
-from scipy.fft import fft
+from scipy.fft import fft, ifft
 import time
 import tester
 import glob
 import shutil
+from enum import Enum, auto
 from gmrf.x64.Release import gmrf
 from cutill.x64.Release import cutill as c
 
@@ -34,6 +35,11 @@ tolerance_max = 4000.0
 tolerance_min = 96.0
 
 '''################ utillity #####################'''
+# ノイズ除去クラスの列挙型
+class denoise(Enum):
+    CMN = auto()
+    GMRF = auto()
+
 # 配列が正常値内に存在していればTrue
 def is_tolerance(data):
     if not tolerance_min <= np.min(data) or not np.max(data) <= tolerance_max:
@@ -55,6 +61,7 @@ def wave_plot(wave1, wave2=None):
         plt.title("Waveform")
         plt.xlabel("Time [s]")
         plt.ylabel("Amplitude")
+        # plt.xlim(0, 256)
 
     plt.show()
 
@@ -79,6 +86,7 @@ def freq_plot(fft1, fft2=None):
         plt.title("Left FFT")
         plt.xlabel("Frequency [Hz]")
         plt.ylabel("Amplitude")
+        plt.ylim(-250, 0)
 
         plt.subplot(122)
         plt.plot(freq, fft2)
@@ -88,21 +96,34 @@ def freq_plot(fft1, fft2=None):
         plt.ylim(-250, 0)
 
     plt.show()
+    
+def abs_error(wave1, wave2):
+    return np.sum(np.abs(wave1 - wave2))
+
+# 対数振幅スペクトルに変換する前に、0以下の値を無視する
+def log_magnitude_spectrum(spectrum):
+    spectrum[spectrum <= 0] = np.mean(spectrum)  # 0以下の値を最小の正の値に置き換える
+    return np.log(np.abs(spectrum)) * 20
 
 '''################# preprocess ####################'''
 # 前処理
-def preprocess(dir):
+def slicer(dir):
+    '''
+    args:
+        dir : str
+    '''
     # pandasでcsvを読み込み
     wave = pd.read_csv(dir+"\\wave.csv", names=["L", "R", "L_gain", "R_gain"])
     posture = pd.read_csv(dir+"\\position.csv")
 
     # waveの長さ [s]
     wave_time = int(len(wave)/fs)
+    rdata = np.empty((0, frame))   # rightの最終的な配列
+    ldata = np.empty((0, frame))   # leftの最終的な配列
     pdata = np.empty(0)            # positionの最終的な配列を格納するndarray
-    fdata = np.empty((0, frame))   # fftの最終的な配列を格納するndarray
     i = 0
 
-    # 前処理
+    # rawデータの切り出し
     for start in range(0, wave_time-frame_time, interval_time):
         i += 1
         # waveとpositionを4秒間隔で10秒間スライス
@@ -129,10 +150,24 @@ def preprocess(dir):
         # 波形の復元
         left = lraw * 2.818 ** lgain
         right = rraw * 2.818 ** rgain
+        
+        ldata = np.vstack((ldata, left)) if ldata.size else left
+        rdata = np.vstack((rdata, right)) if rdata.size else right
+        pdata = np.append(pdata, pos[0])
 
+    print(f"data[{len(pdata)} / {i}]")
+    return ldata, rdata, pdata
+
+'''################# CMN ####################'''
+# CMNによる特徴量抽出
+def cmn_denoise(ldata, rdata):
+    cdata = np.empty((0, frame))   # ケプストラムの最終的な配列を格納するndarray
+    
+    # CMNを適用
+    for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
-
+        
         # 窓関数を適用
         left = left * han
         right = right * han
@@ -145,20 +180,83 @@ def preprocess(dir):
         left_freq[0:11] *= 1e-10
         right_freq[frame-10:] *= 1e-10
 
-        # 振幅スペクトルに変換
+        # 対数振幅スペクトルに変換
         left_freq = np.log(np.abs(left_freq)) * 20
         right_freq = np.log(np.abs(right_freq)) * 20
+        
+        # ケプストラムに変換
+        left_cep = ifft(left_freq, norm="ortho").real
+        right_cep = ifft(right_freq, norm="ortho").real
 
         # 左右の周波数を結合
-        freq = np.hstack((left_freq[:(frame//2)], right_freq[frame//2:]))
+        cep = np.hstack((left_cep[:50], right_cep[frame-50:]))
 
         # dataを2次元numpy配列として追加
-        pdata = np.append(pdata, pos[0]) if pdata.size else pos[0]
+        cdata = np.vstack((cdata, cep)) if cdata.size else cep
+        
+    return cdata
+
+'''################# GMRF ####################'''
+def gmrf_denoise(ldata, rdata):
+    fdata = np.empty((0, frame))   # スペクトルの最終的な配列
+    lg = gmrf.dvgmrf.dvgmrf()
+    rg = gmrf.dvgmrf.dvgmrf()
+    i=0
+    
+    for left, right in zip(ldata, rdata):
+        # 波形の正規化
+        left, right = c.normalize(left, right)
+        
+        # 補正 [0, 255]
+        left = (left + 1) * 127.5
+        right = (right + 1) * 127.5
+        
+        lg._lambda = 1e-7
+        lg._lambda_rate = 1e-8
+        lg._alpha = 0.2
+        lg._alpha_rate = 1e-6
+        lg._epoch = 1000
+        lg.set_eps(1e-6)
+        
+        rg._lambda = 1e-7
+        rg._lambda_rate = 1e-8
+        rg._alpha = 0.2
+        rg._alpha_rate = 1e-6
+        rg._epoch = 1000
+        rg.set_eps(1e-6)
+        
+        # ノイズ除去 [-1, 1]
+        denoised_left = lg.denoise([left]) / 127.5 - 1
+        denoised_right = rg.denoise([right]) / 127.5 - 1
+        left = left / 127.5 - 1
+        right = right / 127.5 - 1
+        
+        # ノイズ除去に失敗したら処理を飛ばす
+        if np.isnan(lg._sigma2) or np.isnan(rg._sigma2):
+            # print("denoising failed")
+            continue
+        if abs_error(left, denoised_left) > 1 or abs_error(right, denoised_right) > 1:
+            # print("denoising failed")
+            continue
+        
+        # 窓関数の適用
+        denoised_left = denoised_left * han
+        denoised_right = denoised_right * han
+        
+        # fft
+        left_freq = fft(denoised_left, norm="ortho")
+        right_freq = fft(denoised_right, norm="ortho")
+        
+        # 対数振幅スペクトルに変換
+        left_freq = np.log(np.abs(left_freq)) * 20
+        right_freq = np.log(np.abs(right_freq)) * 20
+        
+        freq = np.hstack((left_freq[10:frame//2], right_freq[frame//2:frame-10]))
         fdata = np.vstack((fdata, freq)) if fdata.size else freq
-
-    print(f"data[{len(fdata)} / {i}]")
-    return fdata, pdata
-
+        
+    return fdata
+        
+        
 # データセットの作成
 def create_dataset(dir):
     if show_time:
@@ -170,7 +268,8 @@ def create_dataset(dir):
             shutil.rmtree(p)
 
     # rawデータの前処理
-    freq, posture = preprocess("raw\\"+dir)
+    left, right, posture = slicer("raw\\"+dir)
+    freq = gmrf_denoise(left, right)
     files = {1:0, 2:0, 3:0, 4:0,}
 
     # データをcsvに書き出し
@@ -190,6 +289,5 @@ def create_dataset(dir):
         t2 = time.time()    # 時間計測end
         elapsed_time = t2-t1
         print(f"経過時間：{elapsed_time:.3}[s]")
-
 
 create_dataset(data_path)

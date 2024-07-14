@@ -16,13 +16,14 @@ class DatasetLoader(Dataset):
         self.csv_file = tester.value
         self.transform = transform
         # 前処理したrawを読み込む
-        self.data, self.posture = pp.preprocess("raw\\"+self.csv_file)
+        self.left, self.right, self.posture = pp.slicer("raw\\"+self.csv_file)
+        self.cepstrum = pp.cmn_denoise(self.left, self.right)
 
     def __len__(self):
         '''
         データの大きさを返す
         '''
-        return len(self.data)
+        return len(self.cepstrum)
 
     def __getitem__(self, idx):
         '''
@@ -30,4 +31,4 @@ class DatasetLoader(Dataset):
         arguments:
             idx (int): データのインデックス
         '''
-        return self.data[idx], self.posture[idx]
+        return self.cepstrum[idx], self.posture[idx]
