@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 from scipy.fft import fft, ifft
 import time
-import tester
+import data_path as dpath
 import glob
 import shutil
 from enum import Enum, auto
@@ -18,7 +18,7 @@ show_time = True
 
 '''################ parameters #####################'''
 # データセットのパス
-data_path = tester.H002.fl_center.value
+# data_path = data_path.H002.fl_center.value
 
 # データを切り出すパラメータ
 fs = 128        # サンプリング周波数
@@ -61,7 +61,7 @@ def wave_plot(wave1, wave2=None):
         plt.title("Waveform")
         plt.xlabel("Time [s]")
         plt.ylabel("Amplitude")
-        # plt.xlim(0, 256)
+        # plt.xlim(0, 128)
 
     plt.show()
 
@@ -96,7 +96,7 @@ def freq_plot(fft1, fft2=None):
         plt.ylim(-250, 0)
 
     plt.show()
-    
+
 def abs_error(wave1, wave2):
     return np.sum(np.abs(wave1 - wave2))
 
@@ -113,8 +113,8 @@ def slicer(dir):
         dir : str
     '''
     # pandasでcsvを読み込み
-    wave = pd.read_csv(dir+"\\wave.csv", names=["L", "R", "L_gain", "R_gain"])
-    posture = pd.read_csv(dir+"\\position.csv")
+    wave = pd.read_csv(dir/"wave.csv", names=["L", "R", "L_gain", "R_gain"])
+    posture = pd.read_csv(dir/"position.csv")
 
     # waveの長さ [s]
     wave_time = int(len(wave)/fs)
@@ -150,7 +150,7 @@ def slicer(dir):
         # 波形の復元
         left = lraw * 2.818 ** lgain
         right = rraw * 2.818 ** rgain
-        
+
         ldata = np.vstack((ldata, left)) if ldata.size else left
         rdata = np.vstack((rdata, right)) if rdata.size else right
         pdata = np.append(pdata, pos[0])
@@ -162,12 +162,12 @@ def slicer(dir):
 # CMNによる特徴量抽出
 def cmn_denoise(ldata, rdata):
     cdata = np.empty((0, frame))   # ケプストラムの最終的な配列を格納するndarray
-    
+
     # CMNを適用
     for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
-        
+
         # 窓関数を適用
         left = left * han
         right = right * han
@@ -183,7 +183,7 @@ def cmn_denoise(ldata, rdata):
         # 対数振幅スペクトルに変換
         left_freq = np.log(np.abs(left_freq)) * 20
         right_freq = np.log(np.abs(right_freq)) * 20
-        
+
         # ケプストラムに変換
         left_cep = ifft(left_freq, norm="ortho").real
         right_cep = ifft(right_freq, norm="ortho").real
@@ -193,7 +193,7 @@ def cmn_denoise(ldata, rdata):
 
         # dataを2次元numpy配列として追加
         cdata = np.vstack((cdata, cep)) if cdata.size else cep
-        
+
     return cdata
 
 '''################# GMRF ####################'''
@@ -202,35 +202,39 @@ def gmrf_denoise(ldata, rdata):
     lg = gmrf.dvgmrf.dvgmrf()
     rg = gmrf.dvgmrf.dvgmrf()
     i=0
-    
+
     for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
-        
+
         # 補正 [0, 255]
         left = (left + 1) * 127.5
         right = (right + 1) * 127.5
-        
+
+        # GMRFのハイパパラメータを初期化
         lg._lambda = 1e-7
         lg._lambda_rate = 1e-8
         lg._alpha = 0.2
         lg._alpha_rate = 1e-6
         lg._epoch = 1000
         lg.set_eps(1e-6)
-        
+
         rg._lambda = 1e-7
         rg._lambda_rate = 1e-8
         rg._alpha = 0.2
         rg._alpha_rate = 1e-6
         rg._epoch = 1000
         rg.set_eps(1e-6)
-        
+
         # ノイズ除去 [-1, 1]
         denoised_left = lg.denoise([left]) / 127.5 - 1
         denoised_right = rg.denoise([right]) / 127.5 - 1
         left = left / 127.5 - 1
         right = right / 127.5 - 1
-        
+
+        wave_plot(left, denoised_left)
+        print(abs_error(left, denoised_left))
+
         # ノイズ除去に失敗したら処理を飛ばす
         if np.isnan(lg._sigma2) or np.isnan(rg._sigma2):
             # print("denoising failed")
@@ -238,25 +242,27 @@ def gmrf_denoise(ldata, rdata):
         if abs_error(left, denoised_left) > 1 or abs_error(right, denoised_right) > 1:
             # print("denoising failed")
             continue
-        
+
         # 窓関数の適用
         denoised_left = denoised_left * han
         denoised_right = denoised_right * han
-        
+
         # fft
         left_freq = fft(denoised_left, norm="ortho")
         right_freq = fft(denoised_right, norm="ortho")
-        
+
         # 対数振幅スペクトルに変換
         left_freq = np.log(np.abs(left_freq)) * 20
         right_freq = np.log(np.abs(right_freq)) * 20
-        
+
+        freq_plot(left_freq)
+
         freq = np.hstack((left_freq[10:frame//2], right_freq[frame//2:frame-10]))
         fdata = np.vstack((fdata, freq)) if fdata.size else freq
-        
+
     return fdata
-        
-        
+
+
 # データセットの作成
 def create_dataset(dir):
     if show_time:
@@ -290,4 +296,6 @@ def create_dataset(dir):
         elapsed_time = t2-t1
         print(f"経過時間：{elapsed_time:.3}[s]")
 
-create_dataset(data_path)
+path = dpath.get_path(dpath.type.LMH, dpath.testers.H002, dpath.mattresses.fl_center)
+left, right, posture = slicer(path[0])
+freq = gmrf_denoise(left, right)
