@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 
 class mattresses(Enum):
-    fl_center = "fl_center"
+    fl_center = ["fl_center", "fls_center", "flf_center", "fld_center"]
     st_center = "st_center"
     ka_center = "ka_center"
     ka_right = "ka_right"
@@ -45,6 +45,7 @@ def get_path(_type, _tester, _mattress):
             p = [Path(p[0], f"{_mattress.value}")]
     else:
         p = [Path(p[0], f"{_mattress.value}")]
+    print(p)
 
     # 適切なファイルが存在しない場合の例外処理
     try:
@@ -65,3 +66,5 @@ def get_path(_type, _tester, _mattress):
         exit(1)
 
     return p
+
+get_path(type.LMH, testers.H002, mattresses.fl_center)

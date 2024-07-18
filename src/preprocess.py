@@ -113,8 +113,8 @@ def slicer(dir):
         dir : str
     '''
     # pandasでcsvを読み込み
-    wave = pd.read_csv(dir/"wave.csv", names=["L", "R", "L_gain", "R_gain"])
-    posture = pd.read_csv(dir/"position.csv")
+    wave = pd.read_csv(dir + "\\wave.csv", names=["L", "R", "L_gain", "R_gain"])
+    posture = pd.read_csv(dir + "\\position.csv")
 
     # waveの長さ [s]
     wave_time = int(len(wave)/fs)
@@ -296,6 +296,8 @@ def create_dataset(dir):
         elapsed_time = t2-t1
         print(f"経過時間：{elapsed_time:.3}[s]")
 
+'''
 path = dpath.get_path(dpath.type.LMH, dpath.testers.H002, dpath.mattresses.fl_center)
 left, right, posture = slicer(path[0])
 freq = gmrf_denoise(left, right)
+'''

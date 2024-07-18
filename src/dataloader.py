@@ -1,4 +1,4 @@
-import tester
+import data_path
 import preprocess as pp
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
