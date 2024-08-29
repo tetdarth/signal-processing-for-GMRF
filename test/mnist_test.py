@@ -93,14 +93,14 @@ class Net(nn.Module):
         self.layer2 = nn.Linear(n_hidden, 64)
         self.layer3 = nn.Linear(64, n_output)
         self.relu = nn.ReLU(inplace=True)
-        
+
     # 各層を結合
     def forward(self, x):
         x = self.relu(self.layer1(x))
         x = self.relu(self.layer2(x))
         x = self.layer3(x)
         return x
-    
+
 # モデルのインスタンス化
 # pytorchの場合はto(device)でモデルをGPU上に移動する必要がある
 net = Net(n_input, n_output, n_hidden).to(device)

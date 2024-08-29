@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 from scipy.fft import fft, ifft
 import time
-import data_path as dpath
+import datapath as dpath
 import glob
 import shutil
 from enum import Enum, auto
@@ -108,13 +108,9 @@ def log_magnitude_spectrum(spectrum):
 '''################# preprocess ####################'''
 # 前処理
 def slicer(dir):
-    '''
-    args:
-        dir : str
-    '''
     # pandasでcsvを読み込み
-    wave = pd.read_csv(dir + "\\wave.csv", names=["L", "R", "L_gain", "R_gain"])
-    posture = pd.read_csv(dir + "\\position.csv")
+    wave = pd.read_csv(".."/dir/"wave.csv", names=["L", "R", "L_gain", "R_gain"])
+    posture = pd.read_csv(".."/dir/"position.csv")
 
     # waveの長さ [s]
     wave_time = int(len(wave)/fs)
