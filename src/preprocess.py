@@ -146,6 +146,9 @@ def slicer(dir):
         # 波形の復元
         left = lraw * 2.818 ** lgain
         right = rraw * 2.818 ** rgain
+        
+        left = left.astype(np.float32)
+        right = right.astype(np.float32)
 
         ldata = np.vstack((ldata, left)) if ldata.size else left
         rdata = np.vstack((rdata, right)) if rdata.size else right
@@ -157,7 +160,7 @@ def slicer(dir):
 '''################# CMN ####################'''
 # CMNによる特徴量抽出
 def cmn_denoise(ldata, rdata):
-    cdata = np.empty((0, frame))   # ケプストラムの最終的な配列を格納するndarray
+    cdata = np.empty((0, frame), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
 
     # CMNを適用
     for left, right in zip(ldata, rdata):
