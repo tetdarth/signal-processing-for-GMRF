@@ -4,7 +4,7 @@ import torch.nn as nn
 class BasicBlock1D(nn.Module):
     expansion = 1
 
-    def __init__(self, in_planes, planes, stride=1, downsample=None):
+    def __init__(self, in_planes, planes, stride=1, downsample=None, residual_conv=False):
         super(BasicBlock1D, self).__init__()
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm1d(planes)
@@ -13,9 +13,13 @@ class BasicBlock1D(nn.Module):
         self.bn2 = nn.BatchNorm1d(planes)
         self.downsample = downsample
         self.stride = stride
+        self.resconv = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.residual_conv = residual_conv
 
     def forward(self, x):
         identity = x
+        if self.residual_conv:
+            identity = self.resconv(x)
 
         out = self.conv1(x)
         out = self.bn1(out)
@@ -26,10 +30,10 @@ class BasicBlock1D(nn.Module):
 
         if self.downsample is not None:
             identity = self.downsample(x)
-
+            
         out += identity
         out = self.relu(out)
-
+        
         return out
 
 # HAR用のsmall_resnetを定義
@@ -43,12 +47,12 @@ class ResNet1D_small(nn.Module):
         self.maxpool = nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
         self.layer1a = self._make_layer(block, 64, layers[0])
         self.layer1b = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer2a = self._make_layer(block, 256, layers[2], stride=2)
+        self.layer2a = self._make_layer(block, 256, layers[2], stride=2, residual_conv=True)
         self.layer2b = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AdaptiveAvgPool1d(1)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
-    def _make_layer(self, block, planes, blocks, stride=1):
+    def _make_layer(self, block, planes, blocks, stride=1, residual_conv=False):
         downsample = None
         if stride != 1 or self.in_planes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -57,7 +61,7 @@ class ResNet1D_small(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.in_planes, planes, stride, downsample))
+        layers.append(block(self.in_planes, planes, stride, downsample, residual_conv=residual_conv))
         self.in_planes = planes * block.expansion
         for _ in range(1, blocks):
             layers.append(block(self.in_planes, planes))
@@ -80,3 +84,6 @@ class ResNet1D_small(nn.Module):
         x = self.fc(x)
 
         return x
+
+def HAR(num_classes=4):
+    return ResNet1D_small(BasicBlock1D, [2, 2, 2, 2], num_classes)
