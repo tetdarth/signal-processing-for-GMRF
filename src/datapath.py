@@ -44,9 +44,14 @@ class tester(Enum):
 
         try:
             if attr_M:
-                e.append(cls.fls_center.value)
-                e.append(cls.fld_center.value)
-                e.append(cls.flf_center.value)
+                if cls == LMH.M004.value:
+                    e.append(cls.fls_center.value)
+                    e.append(cls.fls_left.value)
+                    e.append(cls.fls_right.value)
+                else:
+                    e.append(cls.fls_center.value)
+                    e.append(cls.fld_center.value)
+                    e.append(cls.flf_center.value)
         except AttributeError:
             print("this tester does not have fl data")
             exit(1)
@@ -68,6 +73,10 @@ class tester(Enum):
                 return 'M001'
             case 'tester_M002':
                 return 'M002'
+            case 'tester_M003':
+                return 'M003'
+            case 'tester_M004':
+                return 'M004'
             case _:
                 pass
         return cls.__name__
@@ -177,8 +186,8 @@ class type_LMH(type):
 
     class tester_M004(tester):
         fls_center = Path("raw/LMH/M004/fls_center")
-        fld_center = Path("raw/LMH/M004/fld_center")
-        flf_center = Path("raw/LMH/M004/fls_center")
+        fls_left = Path("raw/LMH/M004/fls_left")
+        fls_right = Path("raw/LMH/M004/fls_right")
         st_center = Path("raw/LMH/M004/st_center")
         st_right = Path("raw/LMH/M004/st_right")
         st_left = Path("raw/LMH/M004/st_left")
@@ -356,7 +365,7 @@ def parent(espec):
             return LMH.M002
         case LMH.M003.value.fls_center | LMH.M003.value.fld_center | LMH.M003.value.flf_center | LMH.M003.value.st_center | LMH.M003.value.ka_center | LMH.M003.value.ka_left | LMH.M003.value.ka_right:
             return LMH.M003
-        case LMH.M004.value.fls_center | LMH.M004.value.fld_center | LMH.M004.value.flf_center | LMH.M004.value.st_center | LMH.M004.value.ka_center | LMH.M004.value.ka_left | LMH.M004.value.ka_right:
+        case LMH.M004.value.fls_center | LMH.M004.value.fls_left | LMH.M004.value.fls_right | LMH.M004.value.st_center | LMH.M004.value.st_left | LMH.M004.value.st_right | LMH.M004.value.ka_center | LMH.M004.value.ka_left | LMH.M004.value.ka_right:
             return LMH.M004
 
         # YMGT._
@@ -474,17 +483,21 @@ def getattributes(identifier, position = False):
                 LMH.M003.value.st_center | LMH.M004.value.st_center
             ):
                 return 'st_center'
-            case LMH.M001.value.fld_center | LMH.M002.value.fld_center | LMH.M003.value.fld_center | LMH.M004.value.fld_center:
+            case LMH.M001.value.fld_center | LMH.M002.value.fld_center | LMH.M003.value.fld_center:
                 return 'fld_center'
-            case LMH.M001.value.flf_center | LMH.M002.value.flf_center | LMH.M003.value.flf_center | LMH.M004.value.flf_center:
+            case LMH.M001.value.flf_center | LMH.M002.value.flf_center | LMH.M003.value.flf_center:
                 return 'flf_center'
             case LMH.M001.value.fls_center | LMH.M002.value.fls_center | LMH.M003.value.fls_center | LMH.M004.value.fls_center:
                 return 'fls_center'
+            case LMH.M004.value.fls_left:
+                return 'fls_left'
+            case LMH.M004.value.fls_right:
+                return 'fls_right'
 
     mattress = get_mattress()
     if position == False:
         match(mattress):
-            case 'fl_center' | 'fld_center' | 'flf_center' | 'fls_center':
+            case 'fl_center' | 'fld_center' | 'flf_center' | 'fls_center' | 'fls_left' | 'fls_right':
                 mattress = 'fl'
             case 'ka_center' | 'ka_left' | 'ka_right':
                 mattress = 'ka'

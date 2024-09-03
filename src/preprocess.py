@@ -189,7 +189,7 @@ def cmn_denoise(ldata, rdata):
 
         # 左右の周波数を結合
         cep = np.hstack((left_cep[:50], right_cep[frame-50:]))
-
+        
         # dataを2次元numpy配列として追加
         cdata = np.vstack((cdata, cep)) if cdata.size else cep
 
