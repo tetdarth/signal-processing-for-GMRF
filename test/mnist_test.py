@@ -132,6 +132,7 @@ for epoch in range(num_epoch):
         # 入力と正解ラベルをGPU上に移動
         input = input.to(device)
         label = label.to(device)
+        print(label.max())
         
         optimizer.zero_grad()   # 勾配の初期化
         output = net(input)     # 順伝播
