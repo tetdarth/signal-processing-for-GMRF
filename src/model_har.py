@@ -9,7 +9,7 @@ class BasicBlock1D(nn.Module):
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm1d(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.dropout = nn.Dropout(0.35)
+        self.dropout = nn.Dropout(0.4)
         self.conv2 = nn.Conv1d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm1d(planes)
         self.downsample = downsample
@@ -19,19 +19,20 @@ class BasicBlock1D(nn.Module):
 
     def forward(self, x):
         identity = x
-        if self.residual_conv:
-            identity = self.resconv(x)
 
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
         
-        out = self.dropout(out)
+        # out = self.dropout(out)
         out = self.conv2(out)
         out = self.bn2(out)
 
         if self.downsample is not None:
             identity = self.downsample(x)
+            
+        if self.residual_conv:
+            identity = self.resconv(x)
             
         out += identity
         out = self.relu(out)

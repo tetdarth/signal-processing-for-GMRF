@@ -82,7 +82,7 @@ class tester(Enum):
         return cls.__name__
 
 ''' ================================================================= '''
-# テスター用のスーパークラス
+# type用のスーパークラス
 class type(tester):
     @classmethod
     def all(cls):
@@ -92,27 +92,49 @@ class type(tester):
         return e
 
     @classmethod
-    def serch(cls, name):
+    def serch(cls, name, skip=[]):
         e = []
         match(name):
             case 'fl':
                 for v in cls.__members__.values():
+                    flag = False
+                    for s in skip:
+                        if s == v:
+                            flag = True
+                    if flag:
+                        continue
                     e.extend(v.value.fl())
+                    
             case 'st':
                 try:
                     for v in cls.__members__.values():
+                        flag = False
+                        for s in skip:
+                            if s == v:
+                                flag = True
+                        if flag:
+                            continue
                         e.append(v.value.st_center.value)
                 except AttributeError:
                     print("AttributeError : this type does not have st data")
                     exit(1)
+                    
             case 'ka':
                 for v in cls.__members__.values():
+                    flag = False
+                    for s in skip:
+                        if s == v:
+                            flag = True
+                    if flag:
+                        continue
                     e.append(v.value.ka_center.value)
                     e.append(v.value.ka_right.value)
                     e.append(v.value.ka_left.value)
+                    
             case _:
                 pass
-        return e
+        e = set(e)
+        return list(e)
 
     @classmethod
     def to_str(cls):
@@ -160,7 +182,7 @@ class type_LMH(type):
     class tester_M001(tester):
         fls_center = Path("raw/LMH/M001/fls_center")
         fld_center = Path("raw/LMH/M001/fld_center")
-        flf_center = Path("raw/LMH/M001/fls_center")
+        flf_center = Path("raw/LMH/M001/flf_center")
         st_center = Path("raw/LMH/M001/st_center")
         ka_center = Path("raw/LMH/M001/ka_center")
         ka_right = Path("raw/LMH/M001/ka_right")
@@ -169,7 +191,7 @@ class type_LMH(type):
     class tester_M002(tester):
         fls_center = Path("raw/LMH/M002/fls_center")
         fld_center = Path("raw/LMH/M002/fld_center")
-        flf_center = Path("raw/LMH/M002/fls_center")
+        flf_center = Path("raw/LMH/M002/flf_center")
         st_center = Path("raw/LMH/M002/st_center")
         ka_center = Path("raw/LMH/M002/ka_center")
         ka_right = Path("raw/LMH/M002/ka_right")
@@ -178,7 +200,7 @@ class type_LMH(type):
     class tester_M003(tester):
         fls_center = Path("raw/LMH/M003/fls_center")
         fld_center = Path("raw/LMH/M003/fld_center")
-        flf_center = Path("raw/LMH/M003/fls_center")
+        flf_center = Path("raw/LMH/M003/flf_center")
         st_center = Path("raw/LMH/M003/st_center")
         ka_center = Path("raw/LMH/M003/ka_center")
         ka_right = Path("raw/LMH/M003/ka_right")
@@ -344,9 +366,11 @@ LMH = type_LMH
 YMGT = type_YMGT
 YMGT2023 = type_YMGT2023
 
-e = LMH.H002.value.fl_center
-# print(e.name)
-# print(LMH.H002.parent())
+def mattress_all(position=False):
+    if position == False:
+        return ['ka', 'st', 'fl']
+    else:
+        return ['ka_center', 'ka_right', 'ka_left', 'fl_center', 'fl_right', 'fl_left', 'st_center', 'fld_center', 'flf_center', 'fls_center', 'fls_left', 'fls_right']
 
 def parent(espec):
     match(espec):
@@ -506,8 +530,10 @@ def getattributes(identifier, position = False):
 
     return type, tester, mattress
 
+
+
+# e = LMH.H003.value.ka_center
 '''
-e = LMH.H003.value.ka_center
-res = parent(e)
-print(res.value.to_str())
+for i in LMH.serch('fl', skip=[LMH.M004]):
+    print(i)
 '''

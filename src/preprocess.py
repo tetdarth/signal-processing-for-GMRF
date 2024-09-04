@@ -154,7 +154,7 @@ def slicer(dir):
         rdata = np.vstack((rdata, right)) if rdata.size else right
         pdata = np.append(pdata, pos[0])
 
-    print(f"data[{len(pdata)} / {i}]")
+    print(f"{dir} | data[{len(pdata)} / {i}]")
     return ldata, rdata, pdata
 
 '''################# CMN ####################'''
