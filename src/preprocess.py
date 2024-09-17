@@ -193,8 +193,8 @@ def cmn_denoise(ldata, rdata, concat=True):
         right_cep = ifft(right_freq, norm="ortho").real
 
         # ケプストラムに変換したデータをスタック
-        final_ldata = np.vstack((ldata, left_cep)) if ldata.size else left_cep
-        final_rdata = np.vstack((rdata, right_cep)) if rdata.size else right_cep
+        final_ldata = np.vstack((final_ldata, left_cep)) if final_ldata.size else left_cep
+        final_rdata = np.vstack((final_rdata, right_cep)) if final_rdata.size else right_cep
 
     # 平均正規化
     left_cep_mean = np.mean(final_ldata, axis=0)

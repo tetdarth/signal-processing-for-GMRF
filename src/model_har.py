@@ -18,7 +18,7 @@ class BasicBlock1D(nn.Module):
         identity = x
 
         out = self.dropout(x)
-        out = self.conv1(x)
+        out = self.conv1(out)
         out = self.bn1(out)
         out = self.relu(out)
         
