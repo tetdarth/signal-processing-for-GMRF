@@ -161,15 +161,17 @@ def slicer(dir):
 # CMNによる特徴量抽出
 def cmn_denoise(ldata, rdata, concat=True):
     if concat:
-        cdata = np.empty((0, frame), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
+        cdata = np.empty((0, 100), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
     else:
         cdata = []  # タプルを格納するリスト
 
     # CMNを適用
+    final_ldata = np.empty((0, frame))
+    final_rdata = np.empty((0, frame))
+
     for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
-
         # 窓関数を適用
         left = left * han
         right = right * han
@@ -190,9 +192,16 @@ def cmn_denoise(ldata, rdata, concat=True):
         left_cep = ifft(left_freq, norm="ortho").real
         right_cep = ifft(right_freq, norm="ortho").real
 
-        # 平均正規化
-        left_cep_mean = np.mean(left_cep)
-        right_cep_mean = np.mean(right_cep)
+        # ケプストラムに変換したデータをスタック
+        final_ldata = np.vstack((ldata, left_cep)) if ldata.size else left_cep
+        final_rdata = np.vstack((rdata, right_cep)) if rdata.size else right_cep
+
+    # 平均正規化
+    left_cep_mean = np.mean(final_ldata, axis=0)
+    right_cep_mean = np.mean(final_rdata, axis=0)
+
+    for left_cep, right_cep in zip(final_ldata, final_rdata):
+        # 平均ベクトルを減算
         left_cep -= left_cep_mean
         right_cep -= right_cep_mean
 
