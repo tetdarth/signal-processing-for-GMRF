@@ -1,6 +1,7 @@
 from enum import Enum, auto, unique
 from pathlib import Path
 import warnings
+import re
 
 # 一時的に警告を無視する
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -530,10 +531,22 @@ def getattributes(identifier, position = False):
 
     return type, tester, mattress
 
+def extract_position(paths, position):
+    e = []
+    for p in paths:
+        if re.search(position, str(p)) is not None:
+            e.append(p)
+    e = set(e)
+    return list(e)
 
 
 # e = LMH.H003.value.ka_center
 '''
 for i in LMH.serch('fl', skip=[LMH.M004]):
+    print(i)
+'''
+
+'''
+for i in extract_position(LMH.all(), "center"):
     print(i)
 '''

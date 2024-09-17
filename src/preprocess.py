@@ -159,8 +159,11 @@ def slicer(dir):
 
 '''################# CMN ####################'''
 # CMNによる特徴量抽出
-def cmn_denoise(ldata, rdata):
-    cdata = np.empty((0, frame), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
+def cmn_denoise(ldata, rdata, concat=True):
+    if concat:
+        cdata = np.empty((0, frame), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
+    else:
+        cdata = []  # タプルを格納するリスト
 
     # CMNを適用
     for left, right in zip(ldata, rdata):
@@ -187,20 +190,28 @@ def cmn_denoise(ldata, rdata):
         left_cep = ifft(left_freq, norm="ortho").real
         right_cep = ifft(right_freq, norm="ortho").real
 
-        # 左右の周波数を結合
-        cep = np.hstack((left_cep[:50], right_cep[frame-50:]))
-        
-        # dataを2次元numpy配列として追加
-        cdata = np.vstack((cdata, cep)) if cdata.size else cep
+        # 平均正規化
+        left_cep_mean = np.mean(left_cep)
+        right_cep_mean = np.mean(right_cep)
+        left_cep -= left_cep_mean
+        right_cep -= right_cep_mean
 
-    return cdata
+        # 左右の周波数を結合
+        if concat:
+            cep = np.hstack((left_cep[:50], right_cep[frame-50:]))
+            # dataを2次元numpy配列として追加
+            cdata = np.vstack((cdata, cep)) if cdata.size else cep
+        else:
+            cep = (left_cep[:50], right_cep[frame-50:])
+            cdata.append(cep)
+
+    return np.array(cdata) if concat else cdata
 
 '''################# GMRF ####################'''
 def gmrf_denoise(ldata, rdata):
     fdata = np.empty((0, frame))   # スペクトルの最終的な配列
     lg = gmrf.dvgmrf.dvgmrf()
     rg = gmrf.dvgmrf.dvgmrf()
-    i=0
 
     for left, right in zip(ldata, rdata):
         # 波形の正規化
