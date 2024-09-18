@@ -6,10 +6,11 @@ class BasicBlock1D(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1, padding=1, downsample=None):
         super(BasicBlock1D, self).__init__()
+        self.dropout1 = nn.Dropout1d(0.25)
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=padding, bias=False)
         self.bn1 = nn.BatchNorm1d(planes)
         self.relu = nn.ReLU(inplace=True)
-        self.dropout = nn.Dropout1d(0.25)
+        self.dropout2 = nn.Dropout1d(0.25)
         self.conv2 = nn.Conv1d(planes, planes, kernel_size=3, stride=1, padding=padding, bias=False)
         self.bn2 = nn.BatchNorm1d(planes)
         self.downsample = downsample
@@ -17,12 +18,12 @@ class BasicBlock1D(nn.Module):
     def forward(self, x):
         identity = x
 
-        out = self.dropout(x)
+        out = self.dropout1(x)
         out = self.conv1(out)
         out = self.bn1(out)
         out = self.relu(out)
         
-        out = self.dropout(out)
+        out = self.dropout2(out)
         out = self.conv2(out)
         out = self.bn2(out)
 
@@ -85,4 +86,4 @@ class ResNet1D_small(nn.Module):
 
 # Human Activity Recognition Based on Residual Network
 def HAR_resnet18(num_classes=4, num_channel=1):
-    return ResNet1D_small(BasicBlock1D, [1, 1, 1, 1], num_classes, num_channel=num_channel)
+    return ResNet1D_small(BasicBlock1D, [1, 0, 1, 0], num_classes, num_channel=num_channel)
