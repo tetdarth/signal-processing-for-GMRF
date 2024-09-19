@@ -55,7 +55,7 @@ class tester(Enum):
                     e.append(cls.flf_center.value)
         except AttributeError:
             print("this tester does not have fl data")
-            exit(1)
+            assert(1)
 
         return e
 
@@ -297,64 +297,58 @@ class type_YMGT(type):
 
 class type_YMGT2023(type):
     class tester_YMGT_1(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_1/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_1/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_1/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_1/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_1/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_1/Air_left")
 
     class tester_YMGT_2(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_2/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_2/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_2/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_2/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_2/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_2/Air_left")
 
     class tester_YMGT_3(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_3/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_3/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_3/ka_left")
-
-    class tester_YMGT_4(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_4/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_4/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_4/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_3/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_3/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_3/Air_left")
 
     class tester_YMGT_5(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_5/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_5/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_5/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_5/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_5/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_5/Air_left")
 
     class tester_YMGT_6(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_6/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_6/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_6/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_6/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_6/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_6/Air_left")
 
     class tester_YMGT_7(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_7/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_7/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_7/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_7/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_7/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_7/Air_left")
 
     class tester_YMGT_8(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_8/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_8/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_8/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_8/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_8/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_8/Air_left")
 
     class tester_YMGT_9(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_9/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_9/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_9/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_9/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_9/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_9/Air_left")
 
     class tester_YMGT_10(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_10/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_10/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_10/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_10/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_10/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_10/Air_left")
 
     class tester_YMGT_11(tester):
-        ka_center = Path("raw/YMGT_2023/YMGT_11/ka_center")
-        ka_right = Path("raw/YMGT_2023/YMGT_11/ka_right")
-        ka_left = Path("raw/YMGT_2023/YMGT_11/ka_left")
+        ka_center = Path("raw/YMGT_2023/YMGT_11/Air_center")
+        ka_right = Path("raw/YMGT_2023/YMGT_11/Air_right")
+        ka_left = Path("raw/YMGT_2023/YMGT_11/Air_left")
 
     YMGT1 = tester_YMGT_1
     YMGT2 = tester_YMGT_2
     YMGT3 = tester_YMGT_3
-    YMGT4 = tester_YMGT_4
     YMGT5 = tester_YMGT_5
     YMGT6 = tester_YMGT_6
     YMGT7 = tester_YMGT_7
@@ -424,8 +418,6 @@ def parent(espec):
             return YMGT2023.YMGT2
         case YMGT2023.YMGT3.value.ka_center | YMGT2023.YMGT3.value.ka_left | YMGT2023.YMGT3.value.ka_right:
             return YMGT2023.YMGT3
-        case YMGT2023.YMGT4.value.ka_center | YMGT2023.YMGT4.value.ka_left | YMGT2023.YMGT4.value.ka_right:
-            return YMGT2023.YMGT4
         case YMGT2023.YMGT5.value.ka_center | YMGT2023.YMGT5.value.ka_left | YMGT2023.YMGT5.value.ka_right:
             return YMGT2023.YMGT5
         case YMGT2023.YMGT6.value.ka_center | YMGT2023.YMGT6.value.ka_left | YMGT2023.YMGT6.value.ka_right:
@@ -446,13 +438,13 @@ def parent(espec):
             return LMH
         case YMGT.YMGT1 | YMGT.YMGT2 | YMGT.YMGT3 | YMGT.YMGT4 | YMGT.YMGT5 | YMGT.YMGT6 | YMGT.YMGT7 | YMGT.YMGT8 | YMGT.YMGT9 | YMGT.YMGT10 | YMGT.YMGT11:
             return YMGT
-        case YMGT2023.YMGT1 | YMGT2023.YMGT2 | YMGT2023.YMGT3 | YMGT2023.YMGT4 | YMGT2023.YMGT5 | YMGT2023.YMGT6 | YMGT2023.YMGT7 | YMGT2023.YMGT8 | YMGT2023.YMGT9 | YMGT2023.YMGT10 | YMGT2023.YMGT11:
+        case YMGT2023.YMGT1 | YMGT2023.YMGT2 | YMGT2023.YMGT3 | YMGT2023.YMGT5 | YMGT2023.YMGT6 | YMGT2023.YMGT7 | YMGT2023.YMGT8 | YMGT2023.YMGT9 | YMGT2023.YMGT10 | YMGT2023.YMGT11:
             return YMGT2023
 
     # 対応するパスが見つからない場合は None を返す
     return None
 
-def getattributes(identifier, position = False):
+def getattributes(identifier, include_position = False):
     type = parent(parent(identifier)).to_str()
     tester = parent(identifier).value.to_str()
 
@@ -467,7 +459,7 @@ def getattributes(identifier, position = False):
                 YMGT.YMGT7.value.ka_center | YMGT.YMGT8.value.ka_center | YMGT.YMGT9.value.ka_center |
                 YMGT.YMGT10.value.ka_center | YMGT.YMGT11.value.ka_center |
                 YMGT2023.YMGT1.value.ka_center | YMGT2023.YMGT2.value.ka_center | YMGT2023.YMGT3.value.ka_center |
-                YMGT2023.YMGT4.value.ka_center | YMGT2023.YMGT5.value.ka_center | YMGT2023.YMGT6.value.ka_center |
+                YMGT2023.YMGT5.value.ka_center | YMGT2023.YMGT6.value.ka_center |
                 YMGT2023.YMGT7.value.ka_center | YMGT2023.YMGT8.value.ka_center | YMGT2023.YMGT9.value.ka_center |
                 YMGT2023.YMGT10.value.ka_center | YMGT2023.YMGT11.value.ka_center):
                 return 'ka_center'
@@ -480,7 +472,7 @@ def getattributes(identifier, position = False):
                 YMGT.YMGT7.value.ka_left | YMGT.YMGT8.value.ka_left | YMGT.YMGT9.value.ka_left |
                 YMGT.YMGT10.value.ka_left | YMGT.YMGT11.value.ka_left |
                 YMGT2023.YMGT1.value.ka_left | YMGT2023.YMGT2.value.ka_left | YMGT2023.YMGT3.value.ka_left |
-                YMGT2023.YMGT4.value.ka_left | YMGT2023.YMGT5.value.ka_left | YMGT2023.YMGT6.value.ka_left |
+                YMGT2023.YMGT5.value.ka_left | YMGT2023.YMGT6.value.ka_left |
                 YMGT2023.YMGT7.value.ka_left | YMGT2023.YMGT8.value.ka_left | YMGT2023.YMGT9.value.ka_left |
                 YMGT2023.YMGT10.value.ka_left | YMGT2023.YMGT11.value.ka_left):
                 return 'ka_left'
@@ -493,7 +485,7 @@ def getattributes(identifier, position = False):
                 YMGT.YMGT7.value.ka_right | YMGT.YMGT8.value.ka_right | YMGT.YMGT9.value.ka_right |
                 YMGT.YMGT10.value.ka_right | YMGT.YMGT11.value.ka_right |
                 YMGT2023.YMGT1.value.ka_right | YMGT2023.YMGT2.value.ka_right | YMGT2023.YMGT3.value.ka_right |
-                YMGT2023.YMGT4.value.ka_right | YMGT2023.YMGT5.value.ka_right | YMGT2023.YMGT6.value.ka_right |
+                YMGT2023.YMGT5.value.ka_right | YMGT2023.YMGT6.value.ka_right |
                 YMGT2023.YMGT7.value.ka_right | YMGT2023.YMGT8.value.ka_right | YMGT2023.YMGT9.value.ka_right |
                 YMGT2023.YMGT10.value.ka_right | YMGT2023.YMGT11.value.ka_right):
                 return 'ka_right'
@@ -520,7 +512,18 @@ def getattributes(identifier, position = False):
                 return 'fls_right'
 
     mattress = get_mattress()
-    if position == False:
+    position = ''
+    if include_position == False:
+        match(mattress):
+            case 'fl_center' | 'fld_center' | 'flf_center' | 'fls_center' | 'ka_center' | 'st_center':
+                position = 'center'
+            case 'fls_left' | 'ka_left':
+                position = 'left'
+            case 'fls_right' | 'ka_right':
+                position = 'right'
+            case _:
+                assert()
+
         match(mattress):
             case 'fl_center' | 'fld_center' | 'flf_center' | 'fls_center' | 'fls_left' | 'fls_right':
                 mattress = 'fl'
@@ -528,8 +531,10 @@ def getattributes(identifier, position = False):
                 mattress = 'ka'
             case 'st_center':
                 mattress ='st'
+            case _:
+                assert()
 
-    return type, tester, mattress
+    return type, tester, mattress, position
 
 def extract_position(paths, position):
     e = []
