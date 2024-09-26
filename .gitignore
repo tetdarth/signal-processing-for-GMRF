@@ -1,6 +1,7 @@
 src/gmrf/.vs
 src/cutill/.vs
 *.jpg
+*.png
 data/
 datasets/
 raw/
