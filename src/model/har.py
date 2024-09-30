@@ -6,7 +6,7 @@ class BasicBlock1D(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1, padding=1, downsample=None):
         super(BasicBlock1D, self).__init__()
-        dorate = 0.25
+        dorate = 0.4
 
         self.dropout1 = nn.Dropout1d(dorate)
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=padding, bias=False)

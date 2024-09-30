@@ -170,6 +170,7 @@ def cmn_denoise(ldata, rdata, concat=True):
     for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
+        
         # 窓関数を適用
         left = left * han
         right = right * han
