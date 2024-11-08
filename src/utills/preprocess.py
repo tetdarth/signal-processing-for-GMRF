@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 from scipy.fft import fft, ifft
+from scipy.optimize import curve_fit
 import time
 import glob
 import shutil
@@ -21,7 +22,7 @@ show_time = True
 # データを切り出すパラメータ
 fs = 128        # サンプリング周波数
 frame_time = 10     # 窓サイズ (10秒)
-interval_time = 4    # スライス間隔  (4秒)
+interval_time = 1    # スライス間隔  (4秒)
 frame = frame_time*fs   # 窓幅
 interval = interval_time*fs    # スライス幅
 df = fs/frame   # 1サンプルあたりの周波数間隔
@@ -45,7 +46,7 @@ def is_tolerance(data):
     return True
 
 # 波形を簡易プロット
-def wave_plot(wave1, wave2=None):
+def wave_plot(wave1, wave2=None, title=None):
     sample = np.arange(len(wave1))
     if wave2 is None:
         plt.plot(sample, wave1)
@@ -56,43 +57,58 @@ def wave_plot(wave1, wave2=None):
         plt.plot(sample, wave1, label="Left")
         plt.plot(sample, wave2, label="Right")
         plt.legend()
-        plt.title("Waveform")
         plt.xlabel("Time [s]")
         plt.ylabel("Amplitude")
         # plt.xlim(0, 128)
 
+    if title is not None:
+        plt.title(title)
+    plt.title("Waveform")
+
     plt.show()
 
 # 周波数の簡易プロット
-def freq_plot(fft1, fft2=None):
-    # 周波数軸の作成
-    freq = np.linspace(0, fs, fft1.size)
+def freq_plot(fft_result1, fft_result2, sampling_rate, 
+              title=None, 
+              legend=[None, None]
+    ) -> None:
+    """
+    2つのFFT結果を重ねてプロットする関数
+    
+    Parameters:
+    - fft_result1: numpy array, FFT結果1
+    - fft_result2: numpy array, FFT結果2
+    - sampling_rate: int, サンプリング周波数（Hz）
+    """
+    # nをそれぞれのFFT結果の配列サイズから取得
+    n1 = len(fft_result1)
+    n2 = len(fft_result2)
 
-    if fft2 is None:
-        plt.figure(figsize=(8, 6))
-        plt.plot(freq, fft1)
-        plt.title("FFT")
-        plt.xlabel("Frequency [Hz]")
-        plt.ylabel("Amplitude")
-        plt.ylim(-250, 0)
-
+    # 周波数軸を計算（最大長のFFT結果に合わせる）
+    n = max(n1, n2)
+    freqs = np.arange(0, sampling_rate, 1/(n1//sampling_rate))
+    
+    # 周波数軸と振幅の片側スペクトル
+    half_n = n // 2
+    freqs = freqs[:half_n]
+    amplitude1 = fft_result1[:half_n]
+    amplitude2 = fft_result2[:half_n]
+    
+    # プロット
+    plt.figure(figsize=(10, 6))
+    for i in range(2):
+        if legend[i] is None:
+            legend[i] = f'FFT Result{i+1}'
+    plt.plot(freqs, amplitude1, label=legend[0], color="blue")
+    plt.plot(freqs, amplitude2, label=legend[1], color="red", linestyle="--")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Amplitude")
+    if title is None:
+        plt.title("Comparison of Two FFT Results")
     else:
-        # スペクトルをプロット
-        plt.figure(figsize=(10, 4))
-        plt.subplot(121)
-        plt.plot(freq, fft1)
-        plt.title("Left FFT")
-        plt.xlabel("Frequency [Hz]")
-        plt.ylabel("Amplitude")
-        plt.ylim(-250, 0)
-
-        plt.subplot(122)
-        plt.plot(freq, fft2)
-        plt.title("Right FFT")
-        plt.xlabel("Frequency [Hz]")
-        plt.ylabel("Amplitude")
-        plt.ylim(-250, 0)
-
+        plt.title(title)
+    plt.legend()
+    plt.grid()
     plt.show()
 
 def abs_error(wave1, wave2):
@@ -102,6 +118,14 @@ def abs_error(wave1, wave2):
 def log_magnitude_spectrum(spectrum):
     spectrum[spectrum <= 0] = np.mean(spectrum)  # 0以下の値を最小の正の値に置き換える
     return np.log(np.abs(spectrum)) * 20
+
+def fourth_dim(x, a, b, c, d, e):
+    return a*x*x*x*x + b*x*x*x + c*x*x + d*x + e
+
+def fit(data):
+    x = np.arange(len(data))
+    popt, _ = curve_fit(fourth_dim, x, data)
+    return fourth_dim(x, *popt)
 
 '''################# preprocess ####################'''
 # 前処理
@@ -172,24 +196,24 @@ def cmn_denoise(ldata, rdata, concat=True):
         left, right = c.normalize(left, right)
         
         # 窓関数を適用
-        left = left * han
-        right = right * han
+        left *= han
+        right *= han
 
         # FFT
-        left_freq = fft(left, norm="ortho")
-        right_freq = fft(right, norm="ortho")
-
-        # 低周波を除去
-        left_freq[0:11] *= 1e-10
-        right_freq[frame-10:] *= 1e-10
+        left_freq = fft(left)
+        right_freq = fft(right)
 
         # 対数振幅スペクトルに変換
         left_freq = np.log(np.abs(left_freq)) * 20
         right_freq = np.log(np.abs(right_freq)) * 20
 
+        # 低周波を除去
+        left_freq[0:11] *= 1e-10
+        right_freq[frame-10:] *= 1e-10
+
         # ケプストラムに変換
-        left_cep = ifft(left_freq, norm="ortho").real
-        right_cep = ifft(right_freq, norm="ortho").real
+        left_cep = ifft(left_freq).real
+        right_cep = ifft(right_freq).real
 
         # ケプストラムに変換したデータをスタック
         final_ldata = np.vstack((final_ldata, left_cep)) if final_ldata.size else left_cep
@@ -214,6 +238,58 @@ def cmn_denoise(ldata, rdata, concat=True):
             cdata.append(cep)
 
     return np.array(cdata) if concat else cdata
+
+
+'''################# fitting ####################'''
+def fit_deconv(ldata, rdata, concat=False):
+    if concat:
+        cdata = np.empty((0, 100), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
+    else:
+        cdata = []  # タプルを格納するリスト
+
+    final_ldata = np.empty((0, frame))
+    final_rdata = np.empty((0, frame))
+
+    for left, right in zip(ldata, rdata):
+        # 波形の正規化
+        left, right = c.normalize(left, right)
+        
+        # 窓関数を適用
+        left = left * han
+        right = right * han
+
+        # FFT
+        left_freq = fft(left, norm="ortho")
+        right_freq = fft(right, norm="ortho")
+
+        # 対数振幅スペクトルに変換
+        left_freq = np.log(np.abs(left_freq)) * 20
+        right_freq = np.log(np.abs(right_freq)) * 20
+
+        # 四次関数フィッティング
+        # left_freq -= fit(left_freq)
+        # right_freq -= fit(right_freq)
+
+        # 低周波を除去
+        left_freq[0:11] *= 1e-10
+        right_freq[frame-10:] *= 1e-10
+
+        # ケプストラムに変換したデータをスタック
+        final_ldata = np.vstack((final_ldata, left_freq)) if final_ldata.size else left_freq
+        final_rdata = np.vstack((final_rdata, right_freq)) if final_rdata.size else right_freq
+
+    for left, right in zip(final_ldata, final_rdata):
+        # 左右の周波数を結合
+        if concat:
+            data = np.hstack((left[frame//2:], right[frame//2:]))
+            # dataを2次元numpy配列として追加
+            cdata = np.vstack((cdata, data)) if cdata.size else data
+        else:
+            data = (left[:frame//2], right[frame//2:])
+            cdata.append(data)
+
+    return np.array(cdata) if concat else cdata
+
 
 '''################# GMRF ####################'''
 def gmrf_denoise(ldata, rdata):

@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 def get_path(mattress):
     '''
     args:
-        matress : (Enum)type.tester.mattress
+        matress : type.tester.(value).mattress
     '''
     return [mattress.value]
 
@@ -23,7 +23,7 @@ class tester(Enum):
     def all(cls):
         e = []
         for value in cls.__members__.values():
-            e.append(value.value)
+            e.append(value)
         return e
 
     # 全要素のパスを確認
@@ -70,6 +70,8 @@ class tester(Enum):
                 return 'H003'
             case 'tester_L001':
                 return 'L001'
+            case 'tester_L003':
+                return 'L003'
             case 'tester_M001':
                 return 'M001'
             case 'tester_M002':
@@ -90,7 +92,7 @@ class type(tester):
         e = []
         for v in cls.__members__.values():
             e.extend(v.value.all())
-        return e
+        return list(set(e))
 
     @classmethod
     def serch(cls, name, skip=[]):
@@ -500,6 +502,10 @@ def getattributes(identifier, include_position = False):
                 LMH.M003.value.st_center | LMH.M004.value.st_center
             ):
                 return 'st_center'
+            case LMH.M004.value.st_left:
+                return 'st_left'
+            case LMH.M004.value.st_right:
+                return 'st_right'
             case LMH.M001.value.fld_center | LMH.M002.value.fld_center | LMH.M003.value.fld_center:
                 return 'fld_center'
             case LMH.M001.value.flf_center | LMH.M002.value.flf_center | LMH.M003.value.flf_center:
@@ -517,9 +523,9 @@ def getattributes(identifier, include_position = False):
         match(mattress):
             case 'fl_center' | 'fld_center' | 'flf_center' | 'fls_center' | 'ka_center' | 'st_center':
                 position = 'center'
-            case 'fls_left' | 'ka_left':
+            case 'fls_left' | 'ka_left' | 'st_left':
                 position = 'left'
-            case 'fls_right' | 'ka_right':
+            case 'fls_right' | 'ka_right' | 'st_right':
                 position = 'right'
             case _:
                 assert()
@@ -529,7 +535,7 @@ def getattributes(identifier, include_position = False):
                 mattress = 'fl'
             case 'ka_center' | 'ka_left' | 'ka_right':
                 mattress = 'ka'
-            case 'st_center':
+            case 'st_center' | 'st_left' | 'st_right':
                 mattress ='st'
             case _:
                 assert()
@@ -555,3 +561,4 @@ for i in LMH.serch('fl', skip=[LMH.M004]):
 for i in extract_position(LMH.all(), "center"):
     print(i)
 '''
+# print(LMH.L001.value.all())
