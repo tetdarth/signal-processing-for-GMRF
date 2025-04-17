@@ -14,7 +14,7 @@ def save_confusion_matrix(conf_mat):
     '''
     pd.options.display.precision = 4
     plt.figure(figsize=(4, 3))
-    sns.heatmap(conf_mat, cmap = 'Blues', annot=True)
+    sns.heatmap(conf_mat, cmap = 'Blues', annot=True, fmt='.0f')
     plt.savefig("../images/confution_matrix.jpg")
     plt.show()
     
@@ -100,3 +100,4 @@ def boxplot_plot() -> None:
         for t in tester:
             for a in attr:
                 csv_to_boxplot(i,t,a)
+

@@ -22,16 +22,25 @@ show_time = True
 # データを切り出すパラメータ
 fs = 128        # サンプリング周波数
 frame_time = 10     # 窓サイズ (10秒)
-interval_time = 1    # スライス間隔  (4秒)
+interval_time = 4    # スライス間隔  (4秒)
 frame = frame_time*fs   # 窓幅
 interval = interval_time*fs    # スライス幅
 df = fs/frame   # 1サンプルあたりの周波数間隔
 han = np.hanning(frame)     # ハン窓
 acf = frame/sum(han)    # ハン窓の面積比
 
+# 呼吸情報のカットオフ周波数
+breath_cutoff = 1
+breath_cutoff *= frame_time
+breath_cutoff = int(breath_cutoff)
+
 # 不整合データのパラメータ
 tolerance_max = 4000.0
 tolerance_min = 96.0
+
+# CMNのパラメータ
+quef_high_cutoff = 50
+quef_low_cutoff = 0
 
 '''################ utillity #####################'''
 # ノイズ除去クラスの列挙型
@@ -46,29 +55,31 @@ def is_tolerance(data):
     return True
 
 # 波形を簡易プロット
-def wave_plot(wave1, wave2=None, title=None):
-    sample = np.arange(len(wave1))
+def wave_plot(wave1, wave2=None, title=None, fs=128):
+    sample = np.arange(0, len(wave1)/fs, 1/fs)
+    plt.figure(figsize=(6, 4))
     if wave2 is None:
         plt.plot(sample, wave1)
         plt.title("Waveform")
         plt.xlabel("Time [s]")
-        plt.ylabel("Amplitude")
+        plt.ylabel("Amplitude [dB]")
     else:
         plt.plot(sample, wave1, label="Left")
         plt.plot(sample, wave2, label="Right")
         plt.legend()
         plt.xlabel("Time [s]")
-        plt.ylabel("Amplitude")
+        plt.ylabel("Amplitude [dB]")
         # plt.xlim(0, 128)
 
     if title is not None:
         plt.title(title)
-    plt.title("Waveform")
 
     plt.show()
 
 # 周波数の簡易プロット
-def freq_plot(fft_result1, fft_result2, sampling_rate, 
+def freq_plot(fft_result1, 
+              fft_result2=None, 
+              sampling_rate=fs, 
               title=None, 
               legend=[None, None]
     ) -> None:
@@ -82,7 +93,7 @@ def freq_plot(fft_result1, fft_result2, sampling_rate,
     """
     # nをそれぞれのFFT結果の配列サイズから取得
     n1 = len(fft_result1)
-    n2 = len(fft_result2)
+    n2 = len(fft_result2) if fft_result2 is not None else -1
 
     # 周波数軸を計算（最大長のFFT結果に合わせる）
     n = max(n1, n2)
@@ -92,7 +103,8 @@ def freq_plot(fft_result1, fft_result2, sampling_rate,
     half_n = n // 2
     freqs = freqs[:half_n]
     amplitude1 = fft_result1[:half_n]
-    amplitude2 = fft_result2[:half_n]
+    if n2 > 0:
+        amplitude2 = fft_result2[:half_n]
     
     # プロット
     plt.figure(figsize=(10, 6))
@@ -100,7 +112,8 @@ def freq_plot(fft_result1, fft_result2, sampling_rate,
         if legend[i] is None:
             legend[i] = f'FFT Result{i+1}'
     plt.plot(freqs, amplitude1, label=legend[0], color="blue")
-    plt.plot(freqs, amplitude2, label=legend[1], color="red", linestyle="--")
+    if n2 > 0:
+        plt.plot(freqs, amplitude2, label=legend[1], color="red", linestyle="--")
     plt.xlabel("Frequency (Hz)")
     plt.ylabel("Amplitude")
     if title is None:
@@ -119,13 +132,31 @@ def log_magnitude_spectrum(spectrum):
     spectrum[spectrum <= 0] = np.mean(spectrum)  # 0以下の値を最小の正の値に置き換える
     return np.log(np.abs(spectrum)) * 20
 
-def fourth_dim(x, a, b, c, d, e):
-    return a*x*x*x*x + b*x*x*x + c*x*x + d*x + e
+def fit_polynomial(data, order):
+    """
+    指定された次数でデータを近似する多項式を生成
 
-def fit(data):
+    Parameters:
+    data (array-like): フィットさせるデータ
+    order (int): 多項式の次数
+
+    Returns:
+    func (callable): フィッティングした多項式関数
+    fitted_values (array): データに基づくフィッティング結果
+    """
+    # x 軸の値を生成
     x = np.arange(len(data))
-    popt, _ = curve_fit(fourth_dim, x, data)
-    return fourth_dim(x, *popt)
+    
+    # 多項式フィッティング
+    coefficients = np.polyfit(x, data, order)
+    
+    # フィッティング関数を生成
+    polynomial_func = np.poly1d(coefficients)
+    
+    # フィッティング結果
+    fitted_values = polynomial_func(x)
+    
+    return fitted_values
 
 '''################# preprocess ####################'''
 # 前処理
@@ -208,8 +239,10 @@ def cmn_denoise(ldata, rdata, concat=True):
         right_freq = np.log(np.abs(right_freq)) * 20
 
         # 低周波を除去
-        left_freq[0:11] *= 1e-10
-        right_freq[frame-10:] *= 1e-10
+        left_freq[:breath_cutoff] *= 1e-10
+        left_freq[frame-breath_cutoff:] *= 1e-10
+        right_freq[:breath_cutoff] *= 1e-10
+        right_freq[frame-breath_cutoff:] *= 1e-10
 
         # ケプストラムに変換
         left_cep = ifft(left_freq).real
@@ -222,7 +255,7 @@ def cmn_denoise(ldata, rdata, concat=True):
     # 平均正規化
     left_cep_mean = np.mean(final_ldata, axis=0)
     right_cep_mean = np.mean(final_rdata, axis=0)
-
+                
     for left_cep, right_cep in zip(final_ldata, final_rdata):
         # 平均ベクトルを減算
         left_cep -= left_cep_mean
@@ -230,11 +263,11 @@ def cmn_denoise(ldata, rdata, concat=True):
 
         # 左右の周波数を結合
         if concat:
-            cep = np.hstack((left_cep[:50], right_cep[frame-50:]))
+            cep = np.hstack((left_cep[:quef_high_cutoff], right_cep[frame-quef_high_cutoff:]))
             # dataを2次元numpy配列として追加
             cdata = np.vstack((cdata, cep)) if cdata.size else cep
         else:
-            cep = (left_cep[:50], right_cep[frame-50:])
+            cep = (left_cep[quef_low_cutoff:quef_high_cutoff], right_cep[quef_low_cutoff:quef_high_cutoff])
             cdata.append(cep)
 
     return np.array(cdata) if concat else cdata
@@ -267,12 +300,14 @@ def fit_deconv(ldata, rdata, concat=False):
         right_freq = np.log(np.abs(right_freq)) * 20
 
         # 四次関数フィッティング
-        # left_freq -= fit(left_freq)
-        # right_freq -= fit(right_freq)
+        # left_freq -= fit_polynomial(left_freq, 4)
+        # right_freq -= fit_polynomial(right_freq, 4)
 
         # 低周波を除去
-        left_freq[0:11] *= 1e-10
-        right_freq[frame-10:] *= 1e-10
+        left_freq[0:breath_cutoff] *= 1e-10
+        left_freq[frame-breath_cutoff:] *= 1e-10
+        right_freq[0:breath_cutoff] *= 1e-10
+        right_freq[frame-breath_cutoff:] *= 1e-10
 
         # ケプストラムに変換したデータをスタック
         final_ldata = np.vstack((final_ldata, left_freq)) if final_ldata.size else left_freq
@@ -355,43 +390,3 @@ def gmrf_denoise(ldata, rdata):
         fdata = np.vstack((fdata, freq)) if fdata.size else freq
 
     return fdata
-
-
-# データセットの作成
-def create_dataset(dir):
-    if show_time:
-        t1 = time.time()   # 時間計測start
-
-    # ディレクトリ内のcsvファイルを削除
-    for p in glob.glob(".\\datasets\\" + dir +"\\***", recursive=True):
-        if os.path.isdir(p):
-            shutil.rmtree(p)
-
-    # rawデータの前処理
-    left, right, posture = slicer("raw\\"+dir)
-    freq = gmrf_denoise(left, right)
-    files = {1:0, 2:0, 3:0, 4:0,}
-
-    # データをcsvに書き出し
-    for i in range(len(freq)):
-        # ndarrayをDataFrameに変換
-        fdata = pd.DataFrame({'data':freq[i]}).astype(np.float64)
-        pdata = int(posture[i])
-        files[pdata] += 1
-
-        # DataFrameをcsvに書き出し
-        path = ".\\datasets\\" + dir +"\\" + str(pdata)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        fdata.to_csv(path + "\\" + str(files[pdata]) + ".csv")
-
-    if show_time:
-        t2 = time.time()    # 時間計測end
-        elapsed_time = t2-t1
-        print(f"経過時間：{elapsed_time:.3}[s]")
-
-'''
-path = dpath.get_path(dpath.type.LMH, dpath.testers.H002, dpath.mattresses.fl_center)
-left, right, posture = slicer(path[0])
-freq = gmrf_denoise(left, right)
-'''

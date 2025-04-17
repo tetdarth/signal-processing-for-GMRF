@@ -69,8 +69,9 @@ class dataset(Dataset):
             posture = self.transforms(posture)
         return cepstrum, posture
     
-
+validation = 'M001'
 identities = dpath.LMH.all()
+identities = dpath.filter(identities, validation)
 print(identities)
 # バッチサイズ
 batch_size = 128
@@ -85,30 +86,15 @@ concat = True if attr=='DNN' else False
 
 # 被験者
 for identity in identities:
-
-    # 訓練データのパスを取得
-    type, tester, mattress, position = dpath.getattributes(identity)
-
-    train_paths = []
-    for mat in dpath.mattress_all():
-        if mat == mattress:
-            continue
-        train_paths.extend(eval(f"dpath.{type}.serch('{mat}', skip=[dpath.{type}.{tester}])"))
-        train_paths.extend(dpath.YMGT.serch('ka'))
-    # train_paths = dpath.extract_position(train_paths, position=position)
-
-    test_path = [identity.value]
+    type, tester, mattress, _ = dpath.getattributes(identity)
+    train_paths, val_paths, test_path = dpath.get_paths(identity, validatioin='M001')
 
     print("--- train ---")
-    train_val = dataset(train_paths, concat=concat)
+    train = dataset(train_paths, concat=concat)
+    print("--- validation ---")
+    val = dataset(val_paths, concat=concat)
     print("--- test ---")
     test = dataset(test_path, concat=concat)
-
-    n_samples = len(train_val)
-    train_size = int(n_samples * 0.8)    # [train : val] を [8 : 2] に分割
-    val_size = n_samples - train_size
-
-    train, val = torch.utils.data.random_split(train_val, [train_size, val_size])
 
     train_loader = DataLoader(
         train,
@@ -146,7 +132,7 @@ for identity in identities:
     criterion = nn.CrossEntropyLoss()
 
     # 最適化アルゴリズム
-    lr = 5e-4
+    lr = 1e-3
     optimizer = optim.Adam(net.parameters(), lr=lr)
 
     confusion_mat = MulticlassConfusionMatrix(
@@ -157,7 +143,7 @@ for identity in identities:
     train_error, val_error, test_error = [], [], []
 
     # 学習
-    n_epoch = 100
+    n_epoch = 50
     for epoch in range(n_epoch):
         # 精度と損失の初期化
         train_acc, train_loss = 0, 0
@@ -263,7 +249,7 @@ for identity in identities:
     path = f"../tmp/{type}_{tester}"
     if not os.path.isdir(path):
         os.mkdir(path)
-    df.to_csv(path+f"/{mattress}_{attr}_norm=backward.csv")
+    df.to_csv(path+f"/{mattress}_{attr}_HAR2.csv")
 
 # 箱ひげ図のプロット
 ru.boxplot()
