@@ -4,9 +4,12 @@ import pandas as pd
 import glob
 import os
 import re
+from PIL import Image
+from IPython.display import Image as IPImage, display
 
 plt.rcParams['font.family'] = 'Arial'
 
+# 混同行列の生成
 def save_confusion_matrix(conf_mat):
     '''
     args:
@@ -18,6 +21,7 @@ def save_confusion_matrix(conf_mat):
     plt.savefig("../images/confution_matrix.jpg")
     plt.show()
     
+# 箱ひげ図の生成
 def boxplot(data, labels, save=True, title='', attribute=''):
     '''
     args:
@@ -38,6 +42,7 @@ def boxplot(data, labels, save=True, title='', attribute=''):
         plt.savefig(path+'/'+attribute+"_boxplot.png")
     plt.show()
 
+# csvの情報から箱ひげ図の生成
 def csv_to_boxplot(type, tester, attr='', save=True):
     '''
     args:
@@ -101,3 +106,29 @@ def boxplot_plot() -> None:
             for a in attr:
                 csv_to_boxplot(i,t,a)
 
+
+# GIFアニメーションの生成
+def make_gif(target_dir, gif_path) -> None:
+    # 画像のpathを取得
+    image_paths = sorted(glob.glob(f"{target_dir}/*.png"), key=os.path.getmtime)
+    # 画像を開く（表示しない）
+    images = []
+    for path in image_paths:
+        with Image.open(path) as img:
+            images.append(img.copy())  # copyして保持、withブロックで自動close
+
+    # GIFを作成
+    images[0].save(
+        gif_path,
+        save_all=True,
+        append_images=images[1:],
+        duration=200,  # フレームの表示時間 (ミリ秒)
+        loop=0  # 0は無限ループ
+    )
+
+    # pngを削除
+    for path in image_paths:
+        os.remove(path)
+
+    # GIFの表示
+    display(IPImage(filename=gif_path))
