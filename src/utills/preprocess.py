@@ -1,15 +1,12 @@
 import numpy as np
 import pandas as pd
-import os
 import matplotlib.pyplot as plt
 from scipy.fft import fft, ifft
 from scipy.optimize import curve_fit
-import time
-import glob
-import shutil
 from enum import Enum, auto
 from gmrf.x64.Release import gmrf
 from cutill.x64.Release import cutill as c
+from scipy.signal import firwin, lfilter
 
 
 # 実行時間表示
@@ -27,12 +24,9 @@ frame = frame_time*fs   # 窓幅
 interval = interval_time*fs    # スライス幅
 df = fs/frame   # 1サンプルあたりの周波数間隔
 han = np.hanning(frame)     # ハン窓
-acf = frame/sum(han)    # ハン窓の面積比
 
 # 呼吸情報のカットオフ周波数
-breath_cutoff = 1
-breath_cutoff *= frame_time
-breath_cutoff = int(breath_cutoff)
+breath_cutoff = 1.0
 
 # 不整合データのパラメータ
 tolerance_max = 4000.0
@@ -161,16 +155,26 @@ def fit_polynomial(data, order):
 '''################# preprocess ####################'''
 # 前処理
 def slicer(dir):
+    """
+    波形を読み込んでスライスし、不正データを除外する関数
+
+    :Args:
+    - dir(str): データが格納されているディレクトリ
+
+    :Returns:
+    - ldata((2D) ndarray): 左側のセンサデータ
+    - rdata((2D) ndarray): 右側のセンサデータ
+    - pdata(ndarray): センサデータに対応する寝姿勢ラベル
+    """
     # pandasでcsvを読み込み
     wave = pd.read_csv(".."/dir/"wave.csv", names=["L", "R", "L_gain", "R_gain"])
     posture = pd.read_csv(".."/dir/"position.csv")
 
-    # waveの長さ [s]
-    wave_time = int(len(wave)/fs)
+    wave_time = int(len(wave)/fs)   # waveの長さ [s]
     rdata = np.empty((0, frame))   # rightの最終的な配列
     ldata = np.empty((0, frame))   # leftの最終的な配列
     pdata = np.empty(0)            # positionの最終的な配列を格納するndarray
-    i = 0
+    i = 0   # データ数カウンタ
 
     # rawデータの切り出し
     for start in range(0, wave_time-frame_time, interval_time):
@@ -212,20 +216,28 @@ def slicer(dir):
 
 '''################# CMN ####################'''
 # CMNによる特徴量抽出
-def cmn_denoise(ldata, rdata, concat=True):
+def cmn_denoise(ldata, rdata, concat=True, breathcut="fir"):
     if concat:
         cdata = np.empty((0, 100), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
     else:
         cdata = []  # タプルを格納するリスト
 
-    # CMNを適用
+    # CMNを適用する部分にハイパスフィルタを追加
     final_ldata = np.empty((0, frame))
     final_rdata = np.empty((0, frame))
+
+    if breathcut == "simple":
+        real_breath_cutoff = int(breath_cutoff * frame_time)
 
     for left, right in zip(ldata, rdata):
         # 波形の正規化
         left, right = c.normalize(left, right)
-        
+
+        if breathcut=="fir":
+            # ハイパスフィルタを適用
+            left = apply_highpass_filter(left, cutoff=breath_cutoff, fs=fs)
+            right = apply_highpass_filter(right, cutoff=breath_cutoff, fs=fs)
+
         # 窓関数を適用
         left *= han
         right *= han
@@ -238,11 +250,12 @@ def cmn_denoise(ldata, rdata, concat=True):
         left_freq = np.log(np.abs(left_freq)) * 20
         right_freq = np.log(np.abs(right_freq)) * 20
 
-        # 低周波を除去
-        left_freq[:breath_cutoff] *= 1e-10
-        left_freq[frame-breath_cutoff:] *= 1e-10
-        right_freq[:breath_cutoff] *= 1e-10
-        right_freq[frame-breath_cutoff:] *= 1e-10
+        if breathcut=="simple":
+            # 低周波を除去
+            left_freq[0:real_breath_cutoff] *= 1e-10
+            left_freq[frame-real_breath_cutoff:] *= 1e-10
+            right_freq[0:real_breath_cutoff] *= 1e-10
+            right_freq[frame-real_breath_cutoff:] *= 1e-10
 
         # ケプストラムに変換
         left_cep = ifft(left_freq).real
@@ -272,6 +285,26 @@ def cmn_denoise(ldata, rdata, concat=True):
 
     return np.array(cdata) if concat else cdata
 
+'''################ FIRフィルタ ##################'''
+def apply_highpass_filter(data, cutoff, fs, num_taps=101, window='hamming'):
+        """
+        ハイパスFIRフィルタを適用する関数
+
+        :Parameters:
+        - data: ndarray, フィルタリングする信号データ
+        - cutoff: float, カットオフ周波数（Hz）
+        - fs: int, サンプリング周波数（Hz）
+        - num_taps: int, フィルタ係数の数（デフォルトは101）
+        - window: str, 窓関数の種類（デフォルトは 'hamming'）
+
+        :Returns:
+        - filtered_data: ndarray, フィルタリング後の信号データ
+        """
+        # ハイパスフィルタの係数を計算
+        fir_coeff = firwin(num_taps, cutoff, fs=fs, window=window, pass_zero=False)
+        # フィルタを適用
+        filtered_data = lfilter(fir_coeff, 1.0, data)
+        return filtered_data
 
 '''################# fitting ####################'''
 def fit_deconv(ldata, rdata, concat=False):

@@ -72,8 +72,6 @@ def csv_to_boxplot(type, tester, attr='', save=True):
         error.append(err[20:])
         position.append(pos.group())
 
-    # print(accuracy)
-
     # accuracy
     fig, ax1 = plt.subplots()
     bp = ax1.boxplot(accuracy, patch_artist=True)
@@ -108,7 +106,8 @@ def boxplot_plot() -> None:
 
 
 # GIFアニメーションの生成
-def make_gif(target_dir, gif_path) -> None:
+def make_gif(target_dir, gif_name) -> None:
+    gif_path = f"{target_dir}//{gif_name}"
     # 画像のpathを取得
     image_paths = sorted(glob.glob(f"{target_dir}/*.png"), key=os.path.getmtime)
     # 画像を開く（表示しない）

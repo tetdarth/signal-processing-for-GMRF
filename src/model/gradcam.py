@@ -1,4 +1,3 @@
-import torch
 import torch.nn.functional as F
 
 class GradCAM1D:
@@ -32,6 +31,7 @@ class GradCAM1D:
             size(int) : sizeに指定した数字に引き延ばす
         Returs:
             cam_interp : Grad-CAMの結果
+            target_class : モデルが予測した結果
         """
         self.model.eval()
         output = self.model(input_tensor)
@@ -53,7 +53,7 @@ class GradCAM1D:
         cam_interp = F.interpolate(cam.unsqueeze(1), size=size, mode='linear', align_corners=False)
         cam_interp = cam_interp.squeeze(1)
 
-        return cam_interp  # shape: (size, L)
+        return cam_interp, target_class
 
     def remove_hooks(self):
         for handle in self.hook_handles:
