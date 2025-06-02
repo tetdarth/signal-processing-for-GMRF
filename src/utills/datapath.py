@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 def get_path(mattress):
     '''
     args:
-        matress : type.tester.(value).mattress
+        :matress: type.tester.(value).mattress
     '''
     return [mattress.value]
 
@@ -574,7 +574,7 @@ def extract_position(paths, position):
 
 def filter(paths, component):
     """
-     Args
+     Args:
         paths: array(string)
         component: string
     """

@@ -154,12 +154,13 @@ def fit_polynomial(data, order):
 
 '''################# preprocess ####################'''
 # 前処理
-def slicer(dir):
+def slicer(dir, show_progress=True):
     """
     波形を読み込んでスライスし、不正データを除外する関数
 
     :Args:
     - dir(str): データが格納されているディレクトリ
+    - show_progress(bool): 処理したデータ数を表示するか
 
     :Returns:
     - ldata((2D) ndarray): 左側のセンサデータ
@@ -211,12 +212,25 @@ def slicer(dir):
         rdata = np.vstack((rdata, right)) if rdata.size else right
         pdata = np.append(pdata, pos[0])
 
-    print(f"{dir} | data[{len(pdata)} / {i}]")
+    if show_progress: 
+        print(f"{dir} | data[{len(pdata)} / {i}]")
+
     return ldata, rdata, pdata
 
 '''################# CMN ####################'''
 # CMNによる特徴量抽出
 def cmn_denoise(ldata, rdata, concat=True, breathcut="fir"):
+    """
+    CMNによる特徴量抽出を行う関数
+    :Parameters:
+    - ldata: ndarray, 左側のセンサデータ
+    - rdata: ndarray, 右側のセンサデータ
+    - concat: bool, 左右の周波数を結合するかどうか
+    - breathcut: str, 呼吸情報のカットオフ方法 ('fir' or 'simple')
+
+    :Returns:
+    - cdata: ndarray, CMNによる特徴量抽出後のデータ
+    """
     if concat:
         cdata = np.empty((0, 100), dtype=np.float32)   # ケプストラムの最終的な配列を格納するndarray
     else:
@@ -287,24 +301,24 @@ def cmn_denoise(ldata, rdata, concat=True, breathcut="fir"):
 
 '''################ FIRフィルタ ##################'''
 def apply_highpass_filter(data, cutoff, fs, num_taps=101, window='hamming'):
-        """
-        ハイパスFIRフィルタを適用する関数
+    """
+    ハイパスFIRフィルタを適用する関数
 
-        :Parameters:
-        - data: ndarray, フィルタリングする信号データ
-        - cutoff: float, カットオフ周波数（Hz）
-        - fs: int, サンプリング周波数（Hz）
-        - num_taps: int, フィルタ係数の数（デフォルトは101）
-        - window: str, 窓関数の種類（デフォルトは 'hamming'）
+    :Parameters:
+    - data: ndarray, フィルタリングする信号データ
+    - cutoff: float, カットオフ周波数（Hz）
+    - fs: int, サンプリング周波数（Hz）
+    - num_taps: int, フィルタ係数の数（デフォルトは101）
+    - window: str, 窓関数の種類（デフォルトは 'hamming'）
 
-        :Returns:
-        - filtered_data: ndarray, フィルタリング後の信号データ
-        """
-        # ハイパスフィルタの係数を計算
-        fir_coeff = firwin(num_taps, cutoff, fs=fs, window=window, pass_zero=False)
-        # フィルタを適用
-        filtered_data = lfilter(fir_coeff, 1.0, data)
-        return filtered_data
+    :Returns:
+    - filtered_data: ndarray, フィルタリング後の信号データ
+    """
+    # ハイパスフィルタの係数を計算
+    fir_coeff = firwin(num_taps, cutoff, fs=fs, window=window, pass_zero=False)
+    # フィルタを適用
+    filtered_data = lfilter(fir_coeff, 1.0, data)
+    return filtered_data
 
 '''################# fitting ####################'''
 def fit_deconv(ldata, rdata, concat=False):
