@@ -154,7 +154,7 @@ def fit_polynomial(data, order):
 
 '''################# preprocess ####################'''
 # 前処理
-def slicer(dir, show_progress=True):
+def slicer(dir, show_progress=True, num_classes=4):
     """
     波形を読み込んでスライスし、不正データを除外する関数
 
@@ -201,6 +201,12 @@ def slicer(dir, show_progress=True):
         if np.any(pos == 0):
             continue
 
+        if num_classes == 3: # 横向きを0、仰向けを1、うつ伏せを2に変換
+            if pos[0]%2 == 0:
+                pos[0] = 0
+            elif pos[0] == 3:
+                pos[0] = 2
+
         # 波形の復元
         left = lraw * 2.818 ** lgain
         right = rraw * 2.818 ** rgain
@@ -219,7 +225,7 @@ def slicer(dir, show_progress=True):
 
 '''################# CMN ####################'''
 # CMNによる特徴量抽出
-def cmn_denoise(ldata, rdata, concat=True, breathcut="fir"):
+def cmn_denoise(ldata, rdata, concat=True, breathcut="simple"):
     """
     CMNによる特徴量抽出を行う関数
     :Parameters:

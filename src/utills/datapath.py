@@ -585,7 +585,7 @@ def filter(paths, component):
         e.append(p)
     return list(set(e))
 
-def get_paths(tester, validatioin='M001'):
+def get_paths(tester, validatioin='M004'):
     # 訓練データのパスを取得
     train_type, train_tester, train_mattress, _ = getattributes(tester)
 
